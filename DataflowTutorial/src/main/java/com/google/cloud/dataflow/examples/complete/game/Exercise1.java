@@ -25,6 +25,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TypeDescriptors;
 
 import com.google.cloud.dataflow.examples.complete.game.GameActionInfo.KeyField;
+import com.google.cloud.dataflow.examples.complete.game.utils.ChangeMe;
 import com.google.cloud.dataflow.examples.complete.game.utils.ExerciseOptions;
 import com.google.cloud.dataflow.examples.complete.game.utils.Input;
 import com.google.cloud.dataflow.examples.complete.game.utils.Output;
@@ -82,17 +83,16 @@ public class Exercise1 {
         // MapElements is a PTransform for mapping a function over the elements of a
         // PCollection. MapElements.via() takes a lambda expression defining the function
         // to apply.
-        .apply(MapElements
-            // Write the expression that creates key-value pairs, using the KeyField as the
-            // key and the score as the value. KV.of(key, value) creates a key-value pair.
-            .via(/* YOUR CODE GOES HERE */)
-            // Java erasure means we can't determine the output type of our MapElements.
-            // We declare the output type explicitly using withOutputType.
-            // Here we do it for you:
-            .withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))
+	    // Write the expression that creates key-value pairs, using the KeyField as the
+	    // key and the score as the value. KV.of(key, value) creates a key-value pair.
+        // Java erasure means we can't determine the output type of our MapElements.
+        // We declare the output type explicitly using withOutputType.
+        // Use the following code to add the output type:
+        //.withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers()))
+        .apply(new ChangeMe<>() /* TODO: YOUR CODE GOES HERE */)
         // Sum is a family of PTransforms for computing the sum of elements in a PCollection.
         // Select the appropriate method to compute the sum over each key.
-        .apply(/* YOUR CODE GOES HERE */);
+        .apply(new ChangeMe<>() /* TODO: YOUR CODE GOES HERE */);
       // [END EXERCISE 1]:
     }
   }

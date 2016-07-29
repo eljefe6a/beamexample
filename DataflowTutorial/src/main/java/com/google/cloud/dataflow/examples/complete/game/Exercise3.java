@@ -17,6 +17,7 @@
 package com.google.cloud.dataflow.examples.complete.game;
 
 import com.google.cloud.dataflow.examples.complete.game.GameActionInfo.KeyField;
+import com.google.cloud.dataflow.examples.complete.game.utils.ChangeMe;
 import com.google.cloud.dataflow.examples.complete.game.utils.ExerciseOptions;
 import com.google.cloud.dataflow.examples.complete.game.utils.Input;
 import com.google.cloud.dataflow.examples.complete.game.utils.Output;
@@ -70,10 +71,10 @@ public class Exercise3 {
           // to the PCollection. FixedWindows.of() returns a WindowFn that assigns elements
           // to windows of a fixed size. Use these methods to apply fixed windows of size
           // this.duration to the PCollection.
-          .apply(/* YOUR CODE GOES HERE */)
+          .apply(new ChangeMe<>() /* TODO: YOUR CODE GOES HERE */)
           // Remember the ExtractAndSumScore PTransform from Exercise 1? We parameterized
           // it over the KeyField. Use it here to compute the team scores.
-          .apply(/* YOUR CODE GOES HERE */));
+          .apply(new ChangeMe<>() /* TODO: YOUR CODE GOES HERE */);
       // [END EXERCISE 3]
     }
   }

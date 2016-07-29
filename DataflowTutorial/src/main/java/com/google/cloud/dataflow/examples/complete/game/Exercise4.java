@@ -17,6 +17,8 @@
 package com.google.cloud.dataflow.examples.complete.game;
 
 import com.google.cloud.dataflow.examples.complete.game.GameActionInfo.KeyField;
+import com.google.cloud.dataflow.examples.complete.game.utils.ChangeMe;
+import com.google.cloud.dataflow.examples.complete.game.utils.ChangeMeWindowFN;
 import com.google.cloud.dataflow.examples.complete.game.utils.ExerciseOptions;
 import com.google.cloud.dataflow.examples.complete.game.utils.Input;
 import com.google.cloud.dataflow.examples.complete.game.utils.Output;
@@ -86,12 +88,12 @@ public class Exercise4 {
       return input
           .apply(Window
               // Since we want a globally increasing sum, use the GlobalWindows WindowFn
-              .<GameActionInfo>into(/* YOUR CODE GOES HERE */)
+              .<GameActionInfo>into(new ChangeMeWindowFN<>() /* TODO: YOUR CODE GOES HERE */)
               // We want periodic results every updateFrequency of processing time.
               // We will be triggering repeatedly and forever, starting updateFrequency
               // after the first element seen.
               // Window.
-              .triggering(/* YOUR CODE GOES HERE */)
+              .triggering(null /* TODO: YOUR CODE GOES HERE */)
               // Specify the accumulation mode to ensure that each firing of the trigger
               // produces monotonically increasing sums rather than just deltas.
               .accumulatingFiredPanes()
@@ -104,7 +106,7 @@ public class Exercise4 {
           // Extract and sum username/score pairs from the event data.
           // You can use the ExtractAndSumScore transform again.
           // Name the step -- look at overloads of apply().
-          .apply(/* YOUR CODE GOES HERE */);
+          .apply(new ChangeMe<>() /* TODO: YOUR CODE GOES HERE */);
       // [END EXERCISE 4 Part 1]
     }
   }

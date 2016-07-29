@@ -17,6 +17,8 @@
 package com.google.cloud.dataflow.examples.complete.game;
 
 import com.google.cloud.dataflow.examples.complete.game.GameActionInfo.KeyField;
+import com.google.cloud.dataflow.examples.complete.game.utils.ChangeMe;
+import com.google.cloud.dataflow.examples.complete.game.utils.ChangeMeFN;
 import com.google.cloud.dataflow.examples.complete.game.utils.ExerciseOptions;
 import com.google.cloud.dataflow.examples.complete.game.utils.Input;
 import com.google.cloud.dataflow.examples.complete.game.utils.Output;
@@ -125,8 +127,9 @@ public class Exercise5  {
       // Create a side input view of the spammy users
       final PCollectionView<Map<String, Integer>> spammersView = createSpammersView(input);
 
-      return input
-          .apply("TeamWindows", Window.<GameActionInfo>into(FixedWindows.of(windowSize)))
+      PCollection<GameActionInfo> teamWindows = input
+          .apply("TeamWindows", Window.<GameActionInfo>into(FixedWindows.of(windowSize)));
+      
           // [START EXERCISE 5 - Part 2]
           // JavaDoc: https://cloud.google.com/dataflow/java-sdk/JavaDoc
           // Developer Docs: https://cloud.google.com/dataflow/model/par-do#side-inputs
@@ -135,11 +138,10 @@ public class Exercise5  {
           // to identify which entries should be filtered out.
           // Compute team scores over only those individuals who are not identified as
           // spammers.
-          .apply("FilterOutSpammers", ParDo
-              // Configure the ParDo to read the side input. Hint: use ParDo.withSideInputs()
-              /* YOUR CODE GOES HERE */.
+      return teamWindows.apply("FilterOutSpammers", ParDo
+              // TODO: Configure the ParDo to read the side input. Hint: use ParDo.withSideInputs()
               .of(
-                /* YOUR CODE GOES HERE */
+            	new ChangeMeFN<GameActionInfo, GameActionInfo>() /* TODO: YOUR CODE GOES HERE */
               ))
           // Use the ExtractAndSumScore to compute the team scores.
           .apply("ExtractTeamScore", new ExtractAndSumScore(KeyField.TEAM));
