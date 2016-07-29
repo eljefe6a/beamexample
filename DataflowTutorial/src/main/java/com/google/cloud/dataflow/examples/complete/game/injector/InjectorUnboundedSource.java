@@ -17,13 +17,13 @@ package com.google.cloud.dataflow.examples.complete.game.injector;
 
 import com.google.cloud.dataflow.examples.complete.game.GameActionInfo;
 import com.google.cloud.dataflow.examples.complete.game.injector.InjectorIterator.SourceConfig;
-import com.google.cloud.dataflow.sdk.coders.AvroCoder;
-import com.google.cloud.dataflow.sdk.coders.Coder;
-import com.google.cloud.dataflow.sdk.coders.SerializableCoder;
-import com.google.cloud.dataflow.sdk.io.UnboundedSource;
-import com.google.cloud.dataflow.sdk.options.PipelineOptions;
-import com.google.cloud.dataflow.sdk.util.SerializableUtils;
 
+import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.coders.Coder;
+import org.apache.beam.sdk.coders.SerializableCoder;
+import org.apache.beam.sdk.io.UnboundedSource;
+import org.apache.beam.sdk.options.PipelineOptions;
+import org.apache.beam.sdk.util.SerializableUtils;
 import org.joda.time.Duration;
 import org.joda.time.Instant;
 

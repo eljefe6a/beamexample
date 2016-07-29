@@ -18,11 +18,11 @@ package com.google.cloud.dataflow.examples.complete.game.injector;
 
 import com.google.cloud.dataflow.examples.complete.game.GameActionInfo;
 import com.google.cloud.dataflow.examples.complete.game.injector.InjectorIterator.SourceConfig;
-import com.google.cloud.dataflow.sdk.coders.AvroCoder;
-import com.google.cloud.dataflow.sdk.coders.Coder;
-import com.google.cloud.dataflow.sdk.io.BoundedSource;
-import com.google.cloud.dataflow.sdk.options.PipelineOptions;
 
+import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.coders.Coder;
+import org.apache.beam.sdk.io.BoundedSource;
+import org.apache.beam.sdk.options.PipelineOptions;
 import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

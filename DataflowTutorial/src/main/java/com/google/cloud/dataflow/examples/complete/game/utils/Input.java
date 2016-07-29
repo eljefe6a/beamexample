@@ -16,13 +16,14 @@
 
 package com.google.cloud.dataflow.examples.complete.game.utils;
 
+import org.apache.beam.sdk.io.Read;
+import org.apache.beam.sdk.transforms.PTransform;
+import org.apache.beam.sdk.values.PBegin;
+import org.apache.beam.sdk.values.PCollection;
+
 import com.google.cloud.dataflow.examples.complete.game.GameActionInfo;
 import com.google.cloud.dataflow.examples.complete.game.injector.InjectorBoundedSource;
 import com.google.cloud.dataflow.examples.complete.game.injector.InjectorUnboundedSource;
-import com.google.cloud.dataflow.sdk.io.Read;
-import com.google.cloud.dataflow.sdk.transforms.PTransform;
-import com.google.cloud.dataflow.sdk.values.PBegin;
-import com.google.cloud.dataflow.sdk.values.PCollection;
 
 /**
  * Helpers for generating the input
