@@ -8,7 +8,7 @@ public class ChangeMe<InputT, OutputT>
 
 	@Override
 	public PCollection<OutputT> apply(PCollection<InputT> input) {
-		return null;
+		throw new RuntimeException("Not implemented");
 	}
 
 }
