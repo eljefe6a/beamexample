@@ -21,6 +21,7 @@ import com.google.cloud.dataflow.examples.complete.game.utils.ExerciseOptions;
 import com.google.cloud.dataflow.examples.complete.game.utils.Input;
 import com.google.cloud.dataflow.examples.complete.game.utils.Output;
 
+import org.apache.beam.runners.direct.DirectRunner;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.Aggregator;
@@ -82,8 +83,7 @@ public class Exercise5  {
 
       // Filter the user sums using the global mean.
       return sumScores
-          .apply(ParDo
-              .named("ProcessAndFilter")
+          .apply("ProcessAndFilter", ParDo
               // use the derived mean total score as a side input
               .withSideInputs(globalMeanScore)
               .of(new DoFn<KV<String, Integer>, KV<String, Integer>>() {
@@ -92,7 +92,7 @@ public class Exercise5  {
                 @Override
                 public void processElement(ProcessContext c) {
                   int score = c.element().getValue();
-                  double globalMean = c.sideInput(globalMean);
+                  double globalMean = c.sideInput(globalMeanScore);
                   // [START EXERCISE 5 - Part 1]
                   // JavaDoc: https://cloud.google.com/dataflow/java-sdk/JavaDoc
                   // Developer Docs: https://cloud.google.com/dataflow/model/par-do#side-inputs
@@ -192,10 +192,8 @@ public class Exercise5  {
   public static void main(String[] args) throws Exception {
     ExerciseOptions options =
         PipelineOptionsFactory.fromArgs(args).withValidation().as(ExerciseOptions.class);
-    // Enforce that this pipeline is always run in streaming mode.
-    options.setStreaming(true);
     // Allow the pipeline to be cancelled automatically.
-    options.setRunner(DataflowPipelineRunner.class);
+    options.setRunner(DirectRunner.class);
     Pipeline pipeline = Pipeline.create(options);
 
     // Read Events from the custom unbounded source

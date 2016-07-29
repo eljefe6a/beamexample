@@ -139,7 +139,7 @@ public class Exercise4 {
           .apply("FixedWindows", Window
               .<GameActionInfo>into(FixedWindows.of(windowSize))
               .triggering(
-                AfterWatermark.pastEndOfWindow()
+                AfterWatermark.pastEndOfWindow())
                 // Specify .withEarlyFirings to produce speculative results
                 // with a delay of earlyUpdateFrequency
                 /* YOUR CODE GOES HERE */
@@ -190,9 +190,7 @@ public class Exercise4 {
   public static void main(String[] args) throws Exception {
     ExerciseOptions options =
         PipelineOptionsFactory.fromArgs(args).withValidation().as(ExerciseOptions.class);
-    // Enforce that this pipeline is always run in streaming mode.
-    options.setStreaming(true);
-
+    
     Pipeline pipeline = Pipeline.create(options);
 
     // Read game events from the unbounded injector.

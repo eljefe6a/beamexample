@@ -80,7 +80,7 @@ public class WriteToBigQuery<T> extends PTransform<PCollection<T>, PDone> {
     }
   }
   /** Convert each key/score pair into a BigQuery TableRow as specified by fieldFn. */
-  protected class BuildRowFn extends DoFn<T, TableRow> implements RequiresWindowAccess {
+  protected class BuildRowFn extends DoFn<T, TableRow> implements org.apache.beam.sdk.transforms.DoFn.RequiresWindowAccess {
 
     @Override
     public void processElement(ProcessContext c) {
