@@ -144,10 +144,10 @@ public class Exercise4 {
                 AfterWatermark.pastEndOfWindow())
                 // Specify .withEarlyFirings to produce speculative results
                 // with a delay of earlyUpdateFrequency
-                /* YOUR CODE GOES HERE */
+                /* TODO: YOUR CODE GOES HERE */
                 // Specify .withLateFirings to produce late updates with a delay
                 // of lateUpdateFrequency
-                /* YOUR CODE GOES HERE */
+                /* TODO: YOUR CODE GOES HERE */
                 // Specify allowed lateness, and ensure that we get cumulative results
                 // across the window.
               .withAllowedLateness(allowedLateness)
