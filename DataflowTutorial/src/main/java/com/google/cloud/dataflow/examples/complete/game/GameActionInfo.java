@@ -46,17 +46,19 @@ public class GameActionInfo {
   public enum KeyField {
     TEAM {
       @Override
+	public
       String extract(GameActionInfo g) {
         return g.team;
       }
     },
     USER {
       @Override
+	public
       String extract(GameActionInfo g) {
         return g.user;
       }
     };
 
-    abstract String extract(GameActionInfo g);
+    public abstract String extract(GameActionInfo g);
   }
 }

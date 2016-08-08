@@ -4,7 +4,7 @@ import org.apache.beam.sdk.transforms.DoFn;
 
 public class ChangeMeFN<InputT, OutputT> extends DoFn<InputT, OutputT> {
 
-	@Override
+	@ProcessElement
 	public void processElement(ProcessContext context) throws Exception {
 		throw new RuntimeException("Not implemented");
 	}

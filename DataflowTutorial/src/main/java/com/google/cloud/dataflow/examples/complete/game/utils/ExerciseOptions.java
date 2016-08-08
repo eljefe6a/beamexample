@@ -11,7 +11,7 @@ import com.google.cloud.dataflow.examples.complete.game.Exercise1;
  */
 public interface ExerciseOptions extends PipelineOptions {
   @Description("BigQuery Dataset to write tables to. Must already exist.")
-  @Validation.Required
+  //@Validation.Required
   String getDataset();
   void setDataset(String value);
 }

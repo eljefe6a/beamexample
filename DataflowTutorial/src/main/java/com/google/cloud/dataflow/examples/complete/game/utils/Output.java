@@ -16,116 +16,120 @@
 
 package com.google.cloud.dataflow.examples.complete.game.utils;
 
+import java.util.TimeZone;
+
+import org.apache.beam.sdk.io.TextIO.Write;
+import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.windowing.IntervalWindow;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
+import org.apache.beam.sdk.values.TypeDescriptors;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Instant;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
 
 /**
  * Helpers for writing output
  */
 public class Output {
 
-  private static final DateTimeFormatter DATE_TIME_FMT =
-      DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS")
-          .withZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("PST")));
+	private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS")
+			.withZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("PST")));
 
-  private static class Base<InputT> extends PTransform<PCollection<InputT>, PDone> {
+	private static class Base<InputT> extends PTransform<PCollection<InputT>, PDone> {
 
-    private final String tableName;
-    protected final Map<String, WriteToBigQuery.FieldInfo<InputT>> config = new HashMap<>();
+		private final String fileName;
+		protected MapContextElements<InputT, String> objToString;
 
-    public Base(String tableName) {
-      this.tableName = tableName;
-    }
+		public Base(String fileName) {
+			this.fileName = fileName;
+		}
 
-    @Override
-    public PDone apply(PCollection<InputT> input) {
-      return input.apply(new WriteToBigQuery<InputT>(tableName, config));
-    }
-  }
+		@Override
+		public PDone apply(PCollection<InputT> input) {
+			return input.apply(objToString).apply(Write.to(fileName));
+		}
+	}
 
-  /**
-   * Writes to the {@code user_score} table the following columns:
-   *   - {@code user} from the string key
-   *   - {@code total_score} from the integer value
-   */
-  public static class WriteUserScoreSums extends Base<KV<String, Integer>> {
-    public WriteUserScoreSums() {
-      this("user_score");
-    }
-    protected WriteUserScoreSums(String tableName) {
-      super(tableName);
-      config.put("user",
-          new WriteToBigQuery.FieldInfo<KV<String, Integer>>("STRING", c -> c.element().getKey()));
-      config.put("total_score",
-          new WriteToBigQuery.FieldInfo<KV<String, Integer>>("INTEGER", c -> c.element().getValue()));
+	/**
+	 * Writes to the {@code user_score} table the following columns: -
+	 * {@code user} from the string key - {@code total_score} from the integer
+	 * value
+	 */
+	public static class WriteUserScoreSums extends Base<KV<String, Integer>> {
+		public WriteUserScoreSums() {
+			this("user_score");
+		}
 
-    }
-  }
+		protected WriteUserScoreSums(String tableName) {
+			super(tableName);
 
-  /**
-   * Writes to the {@code hourly_team_score} table the following columns:
-   *   - {@code team} from the string key
-   *   - {@code total_score} from the integer value
-   *   - {@code window_start} from the start time of the window
-   */
-  public static class WriteHourlyTeamScore extends Base<KV<String, Integer>> {
-    public WriteHourlyTeamScore() {
-      this("hourly_team_score");
-    }
+			objToString = MapContextElements
+					.<KV<String, Integer>, String> via((DoFn<KV<String, Integer>, String>.ProcessContext c) -> {
+						return "user: " + c.element().getKey() + " total_score:" + c.element().getValue();
+					}).withOutputType(TypeDescriptors.strings());
+		}
+	}
 
-    protected WriteHourlyTeamScore(String tableName) {
-      super(tableName);
-      config.put("team",
-          new WriteToBigQuery.FieldInfo<KV<String, Integer>>("STRING", c -> c.element().getKey()));
-      config.put("total_score",
-          new WriteToBigQuery.FieldInfo<KV<String, Integer>>("INTEGER", c -> c.element().getValue()));
-      config.put("window_start",
-          new WriteToBigQuery.FieldInfo<KV<String, Integer>>("STRING",
-              c -> { IntervalWindow w = (IntervalWindow) c.window();
-              return DATE_TIME_FMT.print(w.start()); }));
-    }
-  }
+	/**
+	 * Writes to the {@code hourly_team_score} table the following columns: -
+	 * {@code team} from the string key - {@code total_score} from the integer
+	 * value - {@code window_start} from the start time of the window
+	 */
+	public static class WriteHourlyTeamScore extends Base<KV<String, Integer>> {
+		public WriteHourlyTeamScore() {
+			this("hourly_team_score");
+		}
 
-  /**
-   * Writes to the {@code triggered_user_score} table the following columns:
-   *   - {@code user} from the string key
-   *   - {@code total_score} from the integer value
-   *   - {@code processing_time} the time at which the row was written
-   */
-  public static class WriteTriggeredUserScoreSums extends WriteUserScoreSums {
-    public WriteTriggeredUserScoreSums() {
-      super("triggered_user_score");
-      config.put("processing_time", new WriteToBigQuery.FieldInfo<KV<String, Integer>>(
-              "STRING", c -> DATE_TIME_FMT.print(Instant.now())));
-    }
-  }
+		protected WriteHourlyTeamScore(String tableName) {
+			super(tableName);
 
-  /**
-   * Writes to the {@code triggered_team_score} table the following columns:
-   *   - {@code team} from the string key
-   *   - {@code total_score} from the integer value
-   *   - {@code window_start} from the start time of the window
-   *   - {@code processing_time} the time at which the row was written
-   *   - {@code timing} a string describing whether the row is early, on-time, or late
-   */
-  public static class WriteTriggeredTeamScore extends WriteHourlyTeamScore {
-    public WriteTriggeredTeamScore() {
-      super("triggered_team_score");
-      config.put("processing_time", new WriteToBigQuery.FieldInfo<KV<String, Integer>>(
-          "STRING", c -> DATE_TIME_FMT.print(Instant.now())));
-      config.put("timing", new WriteToBigQuery.FieldInfo<KV<String, Integer>>(
-          "STRING", c -> c.pane().getTiming().toString()));
-    }
-  }
+			objToString = MapContextElements
+					.<KV<String, Integer>, String> via((DoFn<KV<String, Integer>, String>.ProcessContext c) -> {
+						IntervalWindow w = (IntervalWindow) c.window();
+
+						return "team: " + c.element().getKey() + " total_score:" + c.element().getValue() + " window_start:"
+								+ DATE_TIME_FMT.print(w.start());
+					}).withOutputType(TypeDescriptors.strings());
+		}
+	}
+
+	/**
+	 * Writes to the {@code triggered_user_score} table the following columns: -
+	 * {@code user} from the string key - {@code total_score} from the integer
+	 * value - {@code processing_time} the time at which the row was written
+	 */
+	public static class WriteTriggeredUserScoreSums extends WriteUserScoreSums {
+		public WriteTriggeredUserScoreSums() {
+			super("triggered_user_score");
+
+			objToString = MapContextElements
+					.<KV<String, Integer>, String> via((DoFn<KV<String, Integer>, String>.ProcessContext c) -> {
+						return "processing_time: " + DATE_TIME_FMT.print(Instant.now());
+					}).withOutputType(TypeDescriptors.strings());
+		}
+	}
+
+	/**
+	 * Writes to the {@code triggered_team_score} table the following columns: -
+	 * {@code team} from the string key - {@code total_score} from the integer
+	 * value - {@code window_start} from the start time of the window -
+	 * {@code processing_time} the time at which the row was written -
+	 * {@code timing} a string describing whether the row is early, on-time, or
+	 * late
+	 */
+	public static class WriteTriggeredTeamScore extends WriteHourlyTeamScore {
+		public WriteTriggeredTeamScore() {
+			super("triggered_team_score");
+
+			objToString = MapContextElements
+					.<KV<String, Integer>, String> via((DoFn<KV<String, Integer>, String>.ProcessContext c) -> {
+						return "processing_time: " + DATE_TIME_FMT.print(Instant.now()) + " timing:"
+								+ c.pane().getTiming().toString();
+					}).withOutputType(TypeDescriptors.strings());
+		}
+	}
 }

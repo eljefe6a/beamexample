@@ -35,6 +35,7 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.Sum;
 import org.apache.beam.sdk.transforms.Values;
 import org.apache.beam.sdk.transforms.View;
+import org.apache.beam.sdk.transforms.DoFn.ProcessElement;
 import org.apache.beam.sdk.transforms.windowing.FixedWindows;
 import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.KV;
@@ -91,7 +92,7 @@ public class Exercise5  {
               .of(new DoFn<KV<String, Integer>, KV<String, Integer>>() {
                 private final Aggregator<Long, Long> numSpammerUsers =
                   createAggregator("SpammerUsers", new Sum.SumLongFn());
-                @Override
+                @ProcessElement
                 public void processElement(ProcessContext c) {
                   int score = c.element().getValue();
                   double globalMean = c.sideInput(globalMeanScore);
