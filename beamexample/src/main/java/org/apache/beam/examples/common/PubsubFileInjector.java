@@ -26,6 +26,7 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.options.Validation;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.IntraBundleParallelization;
+import org.apache.beam.sdk.transforms.DoFn.ProcessElement;
 import org.apache.beam.sdk.util.Transport;
 
 import com.google.api.services.pubsub.Pubsub;
@@ -89,7 +90,7 @@ public class PubsubFileInjector {
               .build();
     }
 
-    @Override
+    @ProcessElement
     public void processElement(ProcessContext c) throws IOException {
       if (c.element().isEmpty()) {
         return;

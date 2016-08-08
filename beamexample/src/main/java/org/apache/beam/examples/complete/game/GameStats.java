@@ -28,7 +28,6 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.Aggregator;
 import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.DoFn;
-import org.apache.beam.sdk.transforms.DoFn.RequiresWindowAccess;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.Mean;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -129,7 +128,7 @@ public class GameStats extends LeaderBoard {
               .of(new DoFn<KV<String, Integer>, KV<String, Integer>>() {
                 private final Aggregator<Long, Long> numSpammerUsers =
                   createAggregator("SpammerUsers", new Sum.SumLongFn());
-                @Override
+                @ProcessElement
                 public void processElement(ProcessContext c) {
                   Integer score = c.element().getValue();
                   Double gmc = c.sideInput(globalMeanScore);
@@ -152,7 +151,7 @@ public class GameStats extends LeaderBoard {
   private static class UserSessionInfoFn extends DoFn<KV<String, Integer>, Integer>
       implements RequiresWindowAccess {
 
-    @Override
+  	@ProcessElement
     public void processElement(ProcessContext c) {
       IntervalWindow w = (IntervalWindow) c.window();
       int duration = new Duration(
@@ -282,7 +281,7 @@ public class GameStats extends LeaderBoard {
       .apply("FilterOutSpammers", ParDo
               .withSideInputs(spammersView)
               .of(new DoFn<GameActionInfo, GameActionInfo>() {
-                @Override
+                @ProcessElement
                 public void processElement(ProcessContext c) {
                   // If the user is not in the spammers Map, output the data element.
                   if (c.sideInput(spammersView).get(c.element().getUser().trim()) == null) {

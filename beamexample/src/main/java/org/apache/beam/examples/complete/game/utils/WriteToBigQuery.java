@@ -28,6 +28,7 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.SerializableFunction;
+import org.apache.beam.sdk.transforms.DoFn.ProcessElement;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
 
@@ -85,7 +86,7 @@ public class WriteToBigQuery<T>
   /** Convert each key/score pair into a BigQuery TableRow as specified by fieldFn. */
   protected class BuildRowFn extends DoFn<T, TableRow> {
 
-    @Override
+  	@ProcessElement
     public void processElement(ProcessContext c) {
 
       TableRow row = new TableRow();
