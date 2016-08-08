@@ -21,6 +21,7 @@ import java.util.TimeZone;
 import org.apache.beam.sdk.io.TextIO.Write;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
+import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.transforms.windowing.IntervalWindow;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
@@ -61,15 +62,15 @@ public class Output {
 	 */
 	public static class WriteUserScoreSums extends Base<KV<String, Integer>> {
 		public WriteUserScoreSums() {
-			this("user_score");
+			this("output/user_score");
 		}
 
 		protected WriteUserScoreSums(String tableName) {
 			super(tableName);
-
+			
 			objToString = MapContextElements
-					.<KV<String, Integer>, String> via((DoFn<KV<String, Integer>, String>.ProcessContext c) -> {
-						return "user: " + c.element().getKey() + " total_score:" + c.element().getValue();
+					.<KV<String, Integer>, String> via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
+						return "user: " + c.getKey().element().getKey() + " total_score:" + c.getKey().element().getValue();
 					}).withOutputType(TypeDescriptors.strings());
 		}
 	}
@@ -81,17 +82,17 @@ public class Output {
 	 */
 	public static class WriteHourlyTeamScore extends Base<KV<String, Integer>> {
 		public WriteHourlyTeamScore() {
-			this("hourly_team_score");
+			this("output/hourly_team_score");
 		}
 
 		protected WriteHourlyTeamScore(String tableName) {
 			super(tableName);
 
 			objToString = MapContextElements
-					.<KV<String, Integer>, String> via((DoFn<KV<String, Integer>, String>.ProcessContext c) -> {
-						IntervalWindow w = (IntervalWindow) c.window();
+					.<KV<String, Integer>, String> via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
+						IntervalWindow w = (IntervalWindow) c.getValue();
 
-						return "team: " + c.element().getKey() + " total_score:" + c.element().getValue() + " window_start:"
+						return "team: " + c.getKey().element().getKey() + " total_score:" + c.getKey().element().getValue() + " window_start:"
 								+ DATE_TIME_FMT.print(w.start());
 					}).withOutputType(TypeDescriptors.strings());
 		}
@@ -104,10 +105,10 @@ public class Output {
 	 */
 	public static class WriteTriggeredUserScoreSums extends WriteUserScoreSums {
 		public WriteTriggeredUserScoreSums() {
-			super("triggered_user_score");
+			super("output/triggered_user_score");
 
 			objToString = MapContextElements
-					.<KV<String, Integer>, String> via((DoFn<KV<String, Integer>, String>.ProcessContext c) -> {
+					.<KV<String, Integer>, String> via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
 						return "processing_time: " + DATE_TIME_FMT.print(Instant.now());
 					}).withOutputType(TypeDescriptors.strings());
 		}
@@ -123,12 +124,12 @@ public class Output {
 	 */
 	public static class WriteTriggeredTeamScore extends WriteHourlyTeamScore {
 		public WriteTriggeredTeamScore() {
-			super("triggered_team_score");
+			super("output/triggered_team_score");
 
 			objToString = MapContextElements
-					.<KV<String, Integer>, String> via((DoFn<KV<String, Integer>, String>.ProcessContext c) -> {
+					.<KV<String, Integer>, String> via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
 						return "processing_time: " + DATE_TIME_FMT.print(Instant.now()) + " timing:"
-								+ c.pane().getTiming().toString();
+								+ c.getKey().pane().getTiming().toString();
 					}).withOutputType(TypeDescriptors.strings());
 		}
 	}

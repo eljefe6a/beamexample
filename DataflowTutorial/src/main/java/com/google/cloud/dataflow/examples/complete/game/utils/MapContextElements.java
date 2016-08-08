@@ -6,8 +6,9 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.transforms.SimpleFunction;
-import org.apache.beam.sdk.transforms.DoFn.ProcessElement;
 import org.apache.beam.sdk.transforms.display.DisplayData;
+import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
+import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TypeDescriptor;
 
@@ -34,7 +35,7 @@ extends PTransform<PCollection<InputT>, PCollection<OutputT>> {
    * descriptor need not be provided.
    */
   public static <InputT, OutputT> MissingOutputTypeDescriptor<InputT, OutputT>
-  via(SerializableFunction<DoFn<InputT,OutputT>.ProcessContext, OutputT> fn) {
+  via(SerializableFunction<KV<DoFn<InputT,OutputT>.ProcessContext, BoundedWindow>, OutputT> fn) {
     return new MissingOutputTypeDescriptor<>(fn);
   }
 
@@ -45,9 +46,9 @@ extends PTransform<PCollection<InputT>, PCollection<OutputT>> {
    */
   public static final class MissingOutputTypeDescriptor<InputT, OutputT> {
 
-    private final SerializableFunction<DoFn<InputT,OutputT>.ProcessContext, OutputT> fn;
+    private final SerializableFunction<KV<DoFn<InputT,OutputT>.ProcessContext, BoundedWindow>, OutputT> fn;
 
-    private MissingOutputTypeDescriptor(SerializableFunction<DoFn<InputT,OutputT>.ProcessContext, OutputT> fn) {
+    private MissingOutputTypeDescriptor(SerializableFunction<KV<DoFn<InputT,OutputT>.ProcessContext, BoundedWindow>, OutputT> fn) {
       this.fn = fn;
     }
 
@@ -58,11 +59,11 @@ extends PTransform<PCollection<InputT>, PCollection<OutputT>> {
 
   ///////////////////////////////////////////////////////////////////
 
-  private final SerializableFunction<DoFn<InputT,OutputT>.ProcessContext, OutputT> fn;
+  private final SerializableFunction<KV<DoFn<InputT,OutputT>.ProcessContext, BoundedWindow>, OutputT> fn;
   private final transient TypeDescriptor<OutputT> outputType;
 
   private MapContextElements(
-      SerializableFunction<DoFn<InputT,OutputT>.ProcessContext, OutputT> fn,
+      SerializableFunction<KV<DoFn<InputT,OutputT>.ProcessContext, BoundedWindow>, OutputT> fn,
       TypeDescriptor<OutputT> outputType) {
     this.fn = fn;
     this.outputType = outputType;
@@ -72,8 +73,8 @@ extends PTransform<PCollection<InputT>, PCollection<OutputT>> {
   public PCollection<OutputT> apply(PCollection<InputT> input) {
     return input.apply("Map", ParDo.of(new DoFn<InputT, OutputT>() {
     	@ProcessElement
-      public void processElement(ProcessContext c) {
-        c.output(fn.apply(c));
+      public void processElement(ProcessContext c, BoundedWindow w) {
+        c.output(fn.apply(KV.of(c, w)));
       }
 
       @Override
