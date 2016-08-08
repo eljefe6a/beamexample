@@ -74,7 +74,7 @@ extends PTransform<PCollection<InputT>, PCollection<OutputT>> {
     return input.apply("Map", ParDo.of(new DoFn<InputT, OutputT>() {
     	@ProcessElement
       public void processElement(ProcessContext c, BoundedWindow w) {
-        c.output(fn.apply(KV.of(c, w)));
+        fn.apply(KV.of(c, w));
       }
 
       @Override

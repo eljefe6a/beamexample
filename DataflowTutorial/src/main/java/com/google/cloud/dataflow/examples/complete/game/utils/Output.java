@@ -70,7 +70,9 @@ public class Output {
 			
 			objToString = MapContextElements
 					.<KV<String, Integer>, String> via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
-						return "user: " + c.getKey().element().getKey() + " total_score:" + c.getKey().element().getValue();
+						c.getKey().output("user: " + c.getKey().element().getKey() + " total_score:" + c.getKey().element().getValue());
+						
+						return null;
 					}).withOutputType(TypeDescriptors.strings());
 		}
 	}
@@ -92,8 +94,10 @@ public class Output {
 					.<KV<String, Integer>, String> via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
 						IntervalWindow w = (IntervalWindow) c.getValue();
 
-						return "team: " + c.getKey().element().getKey() + " total_score:" + c.getKey().element().getValue() + " window_start:"
-								+ DATE_TIME_FMT.print(w.start());
+						c.getKey().output("team: " + c.getKey().element().getKey() + " total_score:" + c.getKey().element().getValue() + " window_start:"
+								+ DATE_TIME_FMT.print(w.start()));
+						
+						return null;
 					}).withOutputType(TypeDescriptors.strings());
 		}
 	}
@@ -109,7 +113,9 @@ public class Output {
 
 			objToString = MapContextElements
 					.<KV<String, Integer>, String> via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
-						return "processing_time: " + DATE_TIME_FMT.print(Instant.now());
+						c.getKey().output("processing_time: " + DATE_TIME_FMT.print(Instant.now()));
+						
+						return null;
 					}).withOutputType(TypeDescriptors.strings());
 		}
 	}
@@ -128,8 +134,10 @@ public class Output {
 
 			objToString = MapContextElements
 					.<KV<String, Integer>, String> via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
-						return "processing_time: " + DATE_TIME_FMT.print(Instant.now()) + " timing:"
-								+ c.getKey().pane().getTiming().toString();
+						c.getKey().output("processing_time: " + DATE_TIME_FMT.print(Instant.now()) + " timing:"
+								+ c.getKey().pane().getTiming().toString());
+						
+						return null;
 					}).withOutputType(TypeDescriptors.strings());
 		}
 	}
