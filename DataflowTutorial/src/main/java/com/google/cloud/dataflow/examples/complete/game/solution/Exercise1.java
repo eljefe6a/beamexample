@@ -16,31 +16,17 @@
 
 package com.google.cloud.dataflow.examples.complete.game.solution;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.beam.sdk.Pipeline;
-import org.apache.beam.sdk.coders.Coder;
-import org.apache.beam.sdk.coders.CoderException;
-import org.apache.beam.sdk.coders.StringUtf8Coder;
-import org.apache.beam.sdk.io.TextIO.Write;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
-import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.Sum;
-import org.apache.beam.sdk.util.CloudObject;
-import org.apache.beam.sdk.util.common.ElementByteSizeObserver;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TypeDescriptors;
 
 import com.google.cloud.dataflow.examples.complete.game.GameActionInfo;
 import com.google.cloud.dataflow.examples.complete.game.GameActionInfo.KeyField;
-import com.google.cloud.dataflow.examples.complete.game.utils.ChangeMe;
 import com.google.cloud.dataflow.examples.complete.game.utils.ExerciseOptions;
 import com.google.cloud.dataflow.examples.complete.game.utils.Input;
 import com.google.cloud.dataflow.examples.complete.game.utils.Output;

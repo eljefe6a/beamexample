@@ -136,12 +136,12 @@ public class Exercise4 {
       // Developer Docs: https://cloud.google.com/dataflow/model/triggering
       //
       // We're going to produce windowed team score again, but this time we want to get
-      // early (speculative) results as well as occassional late updates.
+      // early (speculative) results as well as occasional late updates.
       return input
           .apply("FixedWindows", Window
               .<GameActionInfo>into(FixedWindows.of(windowSize))
               .triggering(
-                AfterWatermark.pastEndOfWindow())
+                AfterWatermark.pastEndOfWindow()
                 // Specify .withEarlyFirings to produce speculative results
                 // with a delay of earlyUpdateFrequency
                 /* TODO: YOUR CODE GOES HERE */
@@ -150,6 +150,7 @@ public class Exercise4 {
                 /* TODO: YOUR CODE GOES HERE */
                 // Specify allowed lateness, and ensure that we get cumulative results
                 // across the window.
+                )
               .withAllowedLateness(allowedLateness)
               .accumulatingFiredPanes())
             // Extract and sum teamname/score pairs from the event data.

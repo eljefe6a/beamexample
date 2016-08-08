@@ -18,6 +18,7 @@ package com.google.cloud.dataflow.examples.complete.game.solution;
 
 import com.google.cloud.dataflow.examples.complete.game.GameActionInfo;
 import com.google.cloud.dataflow.examples.complete.game.GameActionInfo.KeyField;
+import com.google.cloud.dataflow.examples.complete.game.solution.Exercise1.ExtractAndSumScore;
 import com.google.cloud.dataflow.examples.complete.game.utils.ChangeMe;
 import com.google.cloud.dataflow.examples.complete.game.utils.ChangeMeWindowFN;
 import com.google.cloud.dataflow.examples.complete.game.utils.ExerciseOptions;
@@ -29,8 +30,12 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.Sum;
+import org.apache.beam.sdk.transforms.windowing.AfterPane;
+import org.apache.beam.sdk.transforms.windowing.AfterProcessingTime;
 import org.apache.beam.sdk.transforms.windowing.AfterWatermark;
 import org.apache.beam.sdk.transforms.windowing.FixedWindows;
+import org.apache.beam.sdk.transforms.windowing.GlobalWindow;
+import org.apache.beam.sdk.transforms.windowing.GlobalWindows;
 import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
@@ -89,12 +94,13 @@ public class Exercise4 {
       return input
           .apply(Window
               // Since we want a globally increasing sum, use the GlobalWindows WindowFn
-              .<GameActionInfo>into(new ChangeMeWindowFN<>() /* TODO: YOUR CODE GOES HERE */)
+              .<GameActionInfo>into(new GlobalWindows())
               // We want periodic results every updateFrequency of processing time.
               // We will be triggering repeatedly and forever, starting updateFrequency
               // after the first element seen.
               // Window.
-              .triggering(null /* TODO: YOUR CODE GOES HERE */)
+              .triggering(AfterWatermark.pastEndOfWindow().withEarlyFirings(
+              		AfterProcessingTime.pastFirstElementInPane().alignedTo(updateFrequency)))
               // Specify the accumulation mode to ensure that each firing of the trigger
               // produces monotonically increasing sums rather than just deltas.
               .accumulatingFiredPanes()
@@ -107,7 +113,7 @@ public class Exercise4 {
           // Extract and sum username/score pairs from the event data.
           // You can use the ExtractAndSumScore transform again.
           // Name the step -- look at overloads of apply().
-          .apply(new ChangeMe<>() /* TODO: YOUR CODE GOES HERE */);
+          .apply("ExtractUserScore", new ExtractAndSumScore(KeyField.USER));
       // [END EXERCISE 4 Part 1]
     }
   }
@@ -137,18 +143,18 @@ public class Exercise4 {
       // Developer Docs: https://cloud.google.com/dataflow/model/triggering
       //
       // We're going to produce windowed team score again, but this time we want to get
-      // early (speculative) results as well as occassional late updates.
+      // early (speculative) results as well as occasional late updates.
       return input
           .apply("FixedWindows", Window
               .<GameActionInfo>into(FixedWindows.of(windowSize))
               .triggering(
-                AfterWatermark.pastEndOfWindow())
+                AfterWatermark.pastEndOfWindow()
                 // Specify .withEarlyFirings to produce speculative results
                 // with a delay of earlyUpdateFrequency
-                /* TODO: YOUR CODE GOES HERE */
+              .withEarlyFirings(AfterProcessingTime.pastFirstElementInPane().alignedTo(earlyUpdateFrequency))
                 // Specify .withLateFirings to produce late updates with a delay
                 // of lateUpdateFrequency
-                /* TODO: YOUR CODE GOES HERE */
+              .withLateFirings(AfterProcessingTime.pastFirstElementInPane().alignedTo(lateUpdateFrequency)))
                 // Specify allowed lateness, and ensure that we get cumulative results
                 // across the window.
               .withAllowedLateness(allowedLateness)
@@ -178,9 +184,10 @@ public class Exercise4 {
     public PCollection<KV<String, Integer>> apply(
         PCollection<GameActionInfo> gameInfo) {
       return gameInfo
-        .apply(MapElements
+        .apply(MapElements 
             .via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore()))
             .withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))
+      	.apply(Window.into(FixedWindows.of(Duration.millis(1000))))
         .apply(Sum.<String>integersPerKey());
     }
   }
