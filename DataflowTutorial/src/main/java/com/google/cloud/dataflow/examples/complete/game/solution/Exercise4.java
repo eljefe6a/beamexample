@@ -37,6 +37,7 @@ import org.apache.beam.sdk.transforms.windowing.FixedWindows;
 import org.apache.beam.sdk.transforms.windowing.GlobalWindow;
 import org.apache.beam.sdk.transforms.windowing.GlobalWindows;
 import org.apache.beam.sdk.transforms.windowing.Window;
+import org.apache.beam.sdk.util.WindowingStrategy;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TypeDescriptors;
@@ -99,8 +100,7 @@ public class Exercise4 {
               // We will be triggering repeatedly and forever, starting updateFrequency
               // after the first element seen.
               // Window.
-              .triggering(AfterWatermark.pastEndOfWindow().withEarlyFirings(
-              		AfterProcessingTime.pastFirstElementInPane().alignedTo(updateFrequency)))
+              .triggering(AfterProcessingTime.pastFirstElementInPane())
               // Specify the accumulation mode to ensure that each firing of the trigger
               // produces monotonically increasing sums rather than just deltas.
               .accumulatingFiredPanes()
