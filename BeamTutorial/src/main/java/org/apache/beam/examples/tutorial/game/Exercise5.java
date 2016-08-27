@@ -106,7 +106,7 @@ public class Exercise5  {
                   // spammers identified.
                   //
                   // Output only the spammy user entries.
-                  /* YOUR CODE GOES HERE */
+                  /* TODO: YOUR CODE GOES HERE */
                   // [END EXERCISE 5 - Part 1]
                 }
               }));
