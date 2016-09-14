@@ -102,11 +102,8 @@ public class Exercise4 {
               .<GameActionInfo>into(
                   new ChangeMeWindowFN<>() /* TODO: YOUR CODE GOES HERE */)
               // We want periodic results every updateFrequency of processing
-              // time.
-              // We will be triggering repeatedly and forever, starting
-              // updateFrequency
-              // after the first element seen.
-              // Window.
+              // time. We will be triggering repeatedly and forever, starting
+              // updateFrequency after the first element seen. Window.
               .triggering(null /* TODO: YOUR CODE GOES HERE */)
               // Specify the accumulation mode to ensure that each firing of the
               // trigger produces monotonically increasing sums rather than just

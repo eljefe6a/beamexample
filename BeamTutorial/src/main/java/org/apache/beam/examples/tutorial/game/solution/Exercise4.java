@@ -101,24 +101,18 @@ public class Exercise4 {
               // WindowFn
               .<GameActionInfo>into(new GlobalWindows())
               // We want periodic results every updateFrequency of processing
-              // time.
-              // We will be triggering repeatedly and forever, starting
-              // updateFrequency
-              // after the first element seen.
-              // Window.
+              // time. We will be triggering repeatedly and forever, starting
+              // updateFrequency after the first element seen. Window.
               .triggering(AfterProcessingTime.pastFirstElementInPane().alignedTo(updateFrequency))
               // Specify the accumulation mode to ensure that each firing of the
-              // trigger
-              // produces monotonically increasing sums rather than just deltas.
+              // trigger produces monotonically increasing sums rather than just
+              // deltas.
               .accumulatingFiredPanes()
               // When windowing on an unbounded stream, there is always the
-              // chance that
-              // the watermark is wrong and we encounter late data. This method
-              // specifies
-              // our upper bound on how "late" data should allowed to be before
-              // being dropped.
-              // It tunes how data is kept around waiting for these late
-              // elements.
+              // chance that the watermark is wrong and we encounter late data.
+              // This method specifies our upper bound on how "late" data should
+              // allowed to be before being dropped. It tunes how data is kept
+              // around waiting for these late elements.
               .withAllowedLateness(allowedLateness))
 
           // Extract and sum username/score pairs from the event data.
