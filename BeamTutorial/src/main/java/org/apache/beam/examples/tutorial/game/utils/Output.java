@@ -18,9 +18,9 @@ package org.apache.beam.examples.tutorial.game.utils;
 
 import java.util.TimeZone;
 
-import org.apache.beam.sdk.io.TextIO.Write;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
+import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.transforms.windowing.IntervalWindow;
 import org.apache.beam.sdk.values.KV;
@@ -51,7 +51,9 @@ public class Output {
 
 		@Override
 		public PDone apply(PCollection<InputT> input) {
-			return input.apply(objToString).apply(Write.to(fileName));
+			PCollection<Void> output = input.apply(objToString).apply(ParDo.of(new UnboundedWriteIO(fileName)));
+			
+			return PDone.in(output.getPipeline());
 		}
 	}
 
