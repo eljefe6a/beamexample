@@ -109,17 +109,14 @@ public class Exercise4 {
               // Window.
               .triggering(null /* TODO: YOUR CODE GOES HERE */)
               // Specify the accumulation mode to ensure that each firing of the
-              // trigger
-              // produces monotonically increasing sums rather than just deltas.
+              // trigger produces monotonically increasing sums rather than just
+              // deltas.
               .accumulatingFiredPanes()
               // When windowing on an unbounded stream, there is always the
-              // chance that
-              // the watermark is wrong and we encounter late data. This method
-              // specifies
-              // our upper bound on how "late" data should allowed to be before
-              // being dropped.
-              // It tunes how data is kept around waiting for these late
-              // elements.
+              // chance that the watermark is wrong and we encounter late data.
+              // This method specifies our upper bound on how "late" data should
+              // allowed to be before being dropped. It tunes how data is kept
+              // around waiting for these late elements.
               .withAllowedLateness(allowedLateness))
 
           // Extract and sum username/score pairs from the event data.
@@ -159,11 +156,11 @@ public class Exercise4 {
       // early (speculative) results as well as occasional late updates.
       return input.apply("FixedWindows",
           Window.<GameActionInfo>into(FixedWindows.of(windowSize)).triggering(AfterWatermark.pastEndOfWindow()
-          // Specify .withEarlyFirings to produce speculative results
-          // with a delay of earlyUpdateFrequency
+          // Specify .withEarlyFirings to produce speculative results with a
+          // delay of earlyUpdateFrequency
           /* TODO: YOUR CODE GOES HERE */
-          // Specify .withLateFirings to produce late updates with a delay
-          // of lateUpdateFrequency
+          // Specify .withLateFirings to produce late updates with a delay of
+          // lateUpdateFrequency
           /* TODO: YOUR CODE GOES HERE */
           // Specify allowed lateness, and ensure that we get cumulative results
           // across the window.

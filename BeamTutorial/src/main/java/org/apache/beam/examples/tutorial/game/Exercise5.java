@@ -103,13 +103,11 @@ public class Exercise5 {
                   // https://cloud.google.com/dataflow/model/par-do#side-inputs
                   //
                   // If the score is 2.5x the global average in each window, log
-                  // the
-                  // username and its score. Hint: (Use LOG.info for logging the
-                  // score)
+                  // the username and its score. Hint: (Use LOG.info for logging
+                  // the score)
                   //
                   // Increment the numSpammerUsers aggregator to record the
-                  // number of
-                  // spammers identified.
+                  // number of spammers identified.
                   //
                   // Output only the spammy user entries.
                   /* TODO: YOUR CODE GOES HERE */
@@ -142,10 +140,8 @@ public class Exercise5 {
       // https://cloud.google.com/dataflow/model/par-do#side-inputs
       //
       // For this part, we'll use the previously computed spammy users as a
-      // side-input
-      // to identify which entries should be filtered out.
-      // Compute team scores over only those individuals who are not identified
-      // as
+      // side-input to identify which entries should be filtered out. Compute
+      // team scores over only those individuals who are not identified as
       // spammers.
       return teamWindows.apply("FilterOutSpammers", ParDo
           // TODO: Configure the ParDo to read the side input. Hint: use

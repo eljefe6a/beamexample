@@ -93,8 +93,8 @@ public class Exercise1 {
         // MapElements is a PTransform for mapping a function over the elements of a
         // PCollection. MapElements.via() takes a lambda expression defining the function
         // to apply.
-	    // Write the expression that creates key-value pairs, using the KeyField as the
-	    // key and the score as the value. KV.of(key, value) creates a key-value pair.
+	      // Write the expression that creates key-value pairs, using the KeyField as the
+	      // key and the score as the value. KV.of(key, value) creates a key-value pair.
         // Java erasure means we can't determine the output type of our MapElements.
         // We declare the output type explicitly using withOutputType.
         // Use the following code to add the output type:

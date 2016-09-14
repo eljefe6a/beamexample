@@ -70,16 +70,14 @@ public class Exercise3 {
       //
       return input
           // Window.into() takes a WindowFn and returns a PTransform that
-          // applies windowing
-          // to the PCollection. FixedWindows.of() returns a WindowFn that
-          // assigns elements
-          // to windows of a fixed size. Use these methods to apply fixed
-          // windows of size
+          // applies windowing to the PCollection. FixedWindows.of() returns a
+          // WindowFn that assigns elements to windows of a fixed size. Use
+          // these methods to apply fixed windows of size
           // this.duration to the PCollection.
           .apply(new ChangeMe<>() /* TODO: YOUR CODE GOES HERE */)
           // Remember the ExtractAndSumScore PTransform from Exercise 1? We
-          // parameterized
-          // it over the KeyField. Use it here to compute the team scores.
+          // parameterized it over the KeyField. Use it here to compute the team
+          // scores.
           .apply(new ChangeMe<>() /* TODO: YOUR CODE GOES HERE */);
       // [END EXERCISE 3]
     }
