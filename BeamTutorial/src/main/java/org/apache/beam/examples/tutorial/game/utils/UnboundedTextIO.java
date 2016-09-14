@@ -57,21 +57,26 @@ import javax.annotation.Nullable;
 /**
  * {@link PTransform}s for reading and writing text files.
  *
- * <p>To read a {@link PCollection} from one or more text files, use {@link UnboundedTextIO.Read}.
- * You can instantiate a transform using {@link UnboundedTextIO.Read#from(String)} to specify
- * the path of the file(s) to read from (e.g., a local filename or
- * filename pattern if running locally, or a Google Cloud Storage
- * filename or filename pattern of the form
+ * <p>
+ * To read a {@link PCollection} from one or more text files, use
+ * {@link UnboundedTextIO.Read}. You can instantiate a transform using
+ * {@link UnboundedTextIO.Read#from(String)} to specify the path of the file(s)
+ * to read from (e.g., a local filename or filename pattern if running locally,
+ * or a Google Cloud Storage filename or filename pattern of the form
  * {@code "gs://<bucket>/<filepath>"}).
  *
- * <p>By default, {@link UnboundedTextIO.Read} returns a {@link PCollection} of {@link String Strings},
- * each corresponding to one line of an input UTF-8 text file. To convert directly from the raw
- * bytes (split into lines delimited by '\n', '\r', or '\r\n') to another object of type {@code T},
- * supply a {@code Coder<T>} using {@link UnboundedTextIO.Read#withCoder(Coder)}.
+ * <p>
+ * By default, {@link UnboundedTextIO.Read} returns a {@link PCollection} of
+ * {@link String Strings}, each corresponding to one line of an input UTF-8 text
+ * file. To convert directly from the raw bytes (split into lines delimited by
+ * '\n', '\r', or '\r\n') to another object of type {@code T}, supply a
+ * {@code Coder<T>} using {@link UnboundedTextIO.Read#withCoder(Coder)}.
  *
- * <p>See the following examples:
+ * <p>
+ * See the following examples:
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  * Pipeline p = ...;
  *
  * // A simple Read of a local file (only runs locally):
@@ -84,21 +89,28 @@ import javax.annotation.Nullable;
  *     p.apply("ReadNumbers", UnboundedTextIO.Read
  *         .from("gs://my_bucket/path/to/numbers-*.txt")
  *         .withCoder(TextualIntegerCoder.of()));
- * }</pre>
+ * }
+ * </pre>
  *
- * <p>To write a {@link PCollection} to one or more text files, use
- * {@link UnboundedTextIO.Write}, specifying {@link UnboundedTextIO.Write#to(String)} to specify
- * the path of the file to write to (e.g., a local filename or sharded
- * filename pattern if running locally, or a Google Cloud Storage
- * filename or sharded filename pattern of the form
- * {@code "gs://<bucket>/<filepath>"}). You can use {@link UnboundedTextIO.Write#withCoder(Coder)}
- * to specify the {@link Coder} to use to encode the Java values into text lines.
+ * <p>
+ * To write a {@link PCollection} to one or more text files, use
+ * {@link UnboundedTextIO.Write}, specifying
+ * {@link UnboundedTextIO.Write#to(String)} to specify the path of the file to
+ * write to (e.g., a local filename or sharded filename pattern if running
+ * locally, or a Google Cloud Storage filename or sharded filename pattern of
+ * the form {@code "gs://<bucket>/<filepath>"}). You can use
+ * {@link UnboundedTextIO.Write#withCoder(Coder)} to specify the {@link Coder}
+ * to use to encode the Java values into text lines.
  *
- * <p>Any existing files with the same names as generated output files
- * will be overwritten.
+ * <p>
+ * Any existing files with the same names as generated output files will be
+ * overwritten.
  *
- * <p>For example:
- * <pre>{@code
+ * <p>
+ * For example:
+ * 
+ * <pre>
+ * {@code
  * // A simple Write to a local file (only runs locally):
  * PCollection<String> lines = ...;
  * lines.apply(UnboundedTextIO.Write.to("/path/to/file.txt"));
@@ -110,79 +122,89 @@ import javax.annotation.Nullable;
  *      .to("gs://my_bucket/path/to/numbers")
  *      .withSuffix(".txt")
  *      .withCoder(TextualIntegerCoder.of()));
- * }</pre>
+ * }
+ * </pre>
  *
  * <h3>Permissions</h3>
- * <p>When run using the {@code DirectRunner}, your pipeline can read and write text files
- * on your local drive and remote text files on Google Cloud Storage that you have access to using
- * your {@code gcloud} credentials. When running in the Dataflow service, the pipeline can only
- * read and write files from GCS. For more information about permissions, see the Cloud Dataflow
- * documentation on <a href="https://cloud.google.com/dataflow/security-and-permissions">Security
+ * <p>
+ * When run using the {@code DirectRunner}, your pipeline can read and write
+ * text files on your local drive and remote text files on Google Cloud Storage
+ * that you have access to using your {@code gcloud} credentials. When running
+ * in the Dataflow service, the pipeline can only read and write files from GCS.
+ * For more information about permissions, see the Cloud Dataflow documentation
+ * on
+ * <a href="https://cloud.google.com/dataflow/security-and-permissions">Security
  * and Permissions</a>.
  */
 public class UnboundedTextIO {
-  /** The default coder, which returns each line of the input file as a string. */
+  /**
+   * The default coder, which returns each line of the input file as a string.
+   */
   public static final Coder<String> DEFAULT_TEXT_CODER = StringUtf8Coder.of();
 
   /////////////////////////////////////////////////////////////////////////////
 
   /**
    * A {@link PTransform} that writes a {@link PCollection} to text file (or
-   * multiple text files matching a sharding pattern), with each
-   * element of the input collection encoded into its own line.
+   * multiple text files matching a sharding pattern), with each element of the
+   * input collection encoded into its own line.
    */
   public static class Write {
 
     /**
      * Returns a transform for writing to text files that writes to the file(s)
-     * with the given prefix. This can be a local filename
-     * (if running locally), or a Google Cloud Storage filename of
-     * the form {@code "gs://<bucket>/<filepath>"}
-     * (if running locally or via the Google Cloud Dataflow service).
+     * with the given prefix. This can be a local filename (if running locally),
+     * or a Google Cloud Storage filename of the form
+     * {@code "gs://<bucket>/<filepath>"} (if running locally or via the Google
+     * Cloud Dataflow service).
      *
-     * <p>The files written will begin with this prefix, followed by
-     * a shard identifier (see {@link Bound#withNumShards(int)}, and end
-     * in a common extension, if given by {@link Bound#withSuffix(String)}.
+     * <p>
+     * The files written will begin with this prefix, followed by a shard
+     * identifier (see {@link Bound#withNumShards(int)}, and end in a common
+     * extension, if given by {@link Bound#withSuffix(String)}.
      */
     public static Bound<String> to(String prefix) {
       return new Bound<>(DEFAULT_TEXT_CODER).to(prefix);
     }
 
     /**
-     * Returns a transform for writing to text files that appends the specified suffix
-     * to the created files.
+     * Returns a transform for writing to text files that appends the specified
+     * suffix to the created files.
      */
     public static Bound<String> withSuffix(String nameExtension) {
       return new Bound<>(DEFAULT_TEXT_CODER).withSuffix(nameExtension);
     }
 
     /**
-     * Returns a transform for writing to text files that uses the provided shard count.
+     * Returns a transform for writing to text files that uses the provided
+     * shard count.
      *
-     * <p>Constraining the number of shards is likely to reduce
-     * the performance of a pipeline. Setting this value is not recommended
-     * unless you require a specific number of output files.
+     * <p>
+     * Constraining the number of shards is likely to reduce the performance of
+     * a pipeline. Setting this value is not recommended unless you require a
+     * specific number of output files.
      *
-     * @param numShards the number of shards to use, or 0 to let the system
-     *                  decide.
+     * @param numShards
+     *          the number of shards to use, or 0 to let the system decide.
      */
     public static Bound<String> withNumShards(int numShards) {
       return new Bound<>(DEFAULT_TEXT_CODER).withNumShards(numShards);
     }
 
     /**
-     * Returns a transform for writing to text files that uses the given shard name
-     * template.
+     * Returns a transform for writing to text files that uses the given shard
+     * name template.
      *
-     * <p>See {@link ShardNameTemplate} for a description of shard templates.
+     * <p>
+     * See {@link ShardNameTemplate} for a description of shard templates.
      */
     public static Bound<String> withShardNameTemplate(String shardTemplate) {
       return new Bound<>(DEFAULT_TEXT_CODER).withShardNameTemplate(shardTemplate);
     }
 
     /**
-     * Returns a transform for writing to text files that forces a single file as
-     * output.
+     * Returns a transform for writing to text files that forces a single file
+     * as output.
      */
     public static Bound<String> withoutSharding() {
       return new Bound<>(DEFAULT_TEXT_CODER).withoutSharding();
@@ -193,22 +215,25 @@ public class UnboundedTextIO {
      * {@link Coder} to encode each of the elements of the input
      * {@link PCollection} into an output text line.
      *
-     * <p>By default, uses {@link StringUtf8Coder}, which writes input
-     * Java strings directly as output lines.
+     * <p>
+     * By default, uses {@link StringUtf8Coder}, which writes input Java strings
+     * directly as output lines.
      *
-     * @param <T> the type of the elements of the input {@link PCollection}
+     * @param <T>
+     *          the type of the elements of the input {@link PCollection}
      */
     public static <T> Bound<T> withCoder(Coder<T> coder) {
       return new Bound<>(coder);
     }
 
     /**
-     * Returns a transform for writing to text files that has GCS path validation on
-     * pipeline creation disabled.
+     * Returns a transform for writing to text files that has GCS path
+     * validation on pipeline creation disabled.
      *
-     * <p>This can be useful in the case where the GCS output location does
-     * not exist at the pipeline creation time, but is expected to be available
-     * at execution time.
+     * <p>
+     * This can be useful in the case where the GCS output location does not
+     * exist at the pipeline creation time, but is expected to be available at
+     * execution time.
      */
     public static Bound<String> withoutValidation() {
       return new Bound<>(DEFAULT_TEXT_CODER).withoutValidation();
@@ -218,17 +243,25 @@ public class UnboundedTextIO {
 
     /**
      * A PTransform that writes a bounded PCollection to a text file (or
-     * multiple text files matching a sharding pattern), with each
-     * PCollection element being encoded into its own line.
+     * multiple text files matching a sharding pattern), with each PCollection
+     * element being encoded into its own line.
      *
-     * @param <T> the type of the elements of the input PCollection
+     * @param <T>
+     *          the type of the elements of the input PCollection
      */
     public static class Bound<T> extends PTransform<PCollection<T>, PDone> {
       private static final String DEFAULT_SHARD_TEMPLATE = ShardNameTemplate.INDEX_OF_MAX;
 
-      /** The prefix of each file written, combined with suffix and shardTemplate. */
-      @Nullable private final String filenamePrefix;
-      /** The suffix of each file written, combined with prefix and shardTemplate. */
+      /**
+       * The prefix of each file written, combined with suffix and
+       * shardTemplate.
+       */
+      @Nullable
+      private final String filenamePrefix;
+      /**
+       * The suffix of each file written, combined with prefix and
+       * shardTemplate.
+       */
       private final String filenameSuffix;
 
       /** The Coder to use to decode each line. */
@@ -237,18 +270,23 @@ public class UnboundedTextIO {
       /** Requested number of shards. 0 for automatic. */
       private final int numShards;
 
-      /** The shard template of each file written, combined with prefix and suffix. */
+      /**
+       * The shard template of each file written, combined with prefix and
+       * suffix.
+       */
       private final String shardTemplate;
 
-      /** An option to indicate if output validation is desired. Default is true. */
+      /**
+       * An option to indicate if output validation is desired. Default is true.
+       */
       private final boolean validate;
 
       Bound(Coder<T> coder) {
         this(null, null, "", coder, 0, DEFAULT_SHARD_TEMPLATE, true);
       }
 
-      private Bound(String name, String filenamePrefix, String filenameSuffix, Coder<T> coder,
-          int numShards, String shardTemplate, boolean validate) {
+      private Bound(String name, String filenamePrefix, String filenameSuffix, Coder<T> coder, int numShards,
+          String shardTemplate, boolean validate) {
         super(name);
         this.coder = coder;
         this.filenamePrefix = filenamePrefix;
@@ -262,118 +300,123 @@ public class UnboundedTextIO {
        * Returns a transform for writing to text files that's like this one but
        * that writes to the file(s) with the given filename prefix.
        *
-       * <p>See {@link UnboundedTextIO.Write#to(String) Write.to(String)} for more information.
+       * <p>
+       * See {@link UnboundedTextIO.Write#to(String) Write.to(String)} for more
+       * information.
        *
-       * <p>Does not modify this object.
+       * <p>
+       * Does not modify this object.
        */
       public Bound<T> to(String filenamePrefix) {
         validateOutputComponent(filenamePrefix);
-        return new Bound<>(name, filenamePrefix, filenameSuffix, coder, numShards,
-            shardTemplate, validate);
+        return new Bound<>(name, filenamePrefix, filenameSuffix, coder, numShards, shardTemplate, validate);
       }
 
       /**
-       * Returns a transform for writing to text files that that's like this one but
-       * that writes to the file(s) with the given filename suffix.
+       * Returns a transform for writing to text files that that's like this one
+       * but that writes to the file(s) with the given filename suffix.
        *
-       * <p>Does not modify this object.
+       * <p>
+       * Does not modify this object.
        *
        * @see ShardNameTemplate
        */
       public Bound<T> withSuffix(String nameExtension) {
         validateOutputComponent(nameExtension);
-        return new Bound<>(name, filenamePrefix, nameExtension, coder, numShards,
-            shardTemplate, validate);
+        return new Bound<>(name, filenamePrefix, nameExtension, coder, numShards, shardTemplate, validate);
       }
 
       /**
        * Returns a transform for writing to text files that's like this one but
        * that uses the provided shard count.
        *
-       * <p>Constraining the number of shards is likely to reduce
-       * the performance of a pipeline. Setting this value is not recommended
-       * unless you require a specific number of output files.
+       * <p>
+       * Constraining the number of shards is likely to reduce the performance
+       * of a pipeline. Setting this value is not recommended unless you require
+       * a specific number of output files.
        *
-       * <p>Does not modify this object.
+       * <p>
+       * Does not modify this object.
        *
-       * @param numShards the number of shards to use, or 0 to let the system
-       *                  decide.
+       * @param numShards
+       *          the number of shards to use, or 0 to let the system decide.
        * @see ShardNameTemplate
        */
       public Bound<T> withNumShards(int numShards) {
         checkArgument(numShards >= 0);
-        return new Bound<>(name, filenamePrefix, filenameSuffix, coder, numShards,
-            shardTemplate, validate);
+        return new Bound<>(name, filenamePrefix, filenameSuffix, coder, numShards, shardTemplate, validate);
       }
 
       /**
        * Returns a transform for writing to text files that's like this one but
        * that uses the given shard name template.
        *
-       * <p>Does not modify this object.
+       * <p>
+       * Does not modify this object.
        *
        * @see ShardNameTemplate
        */
       public Bound<T> withShardNameTemplate(String shardTemplate) {
-        return new Bound<>(name, filenamePrefix, filenameSuffix, coder, numShards,
-            shardTemplate, validate);
+        return new Bound<>(name, filenamePrefix, filenameSuffix, coder, numShards, shardTemplate, validate);
       }
 
       /**
        * Returns a transform for writing to text files that's like this one but
        * that forces a single file as output.
        *
-       * <p>Constraining the number of shards is likely to reduce
-       * the performance of a pipeline. Using this setting is not recommended
-       * unless you truly require a single output file.
+       * <p>
+       * Constraining the number of shards is likely to reduce the performance
+       * of a pipeline. Using this setting is not recommended unless you truly
+       * require a single output file.
        *
-       * <p>This is a shortcut for
+       * <p>
+       * This is a shortcut for
        * {@code .withNumShards(1).withShardNameTemplate("")}
        *
-       * <p>Does not modify this object.
+       * <p>
+       * Does not modify this object.
        */
       public Bound<T> withoutSharding() {
         return new Bound<>(name, filenamePrefix, filenameSuffix, coder, 1, "", validate);
       }
 
       /**
-       * Returns a transform for writing to text files that's like this one
-       * but that uses the given {@link Coder Coder<X>} to encode each of
-       * the elements of the input {@link PCollection PCollection<X>} into an
-       * output text line. Does not modify this object.
+       * Returns a transform for writing to text files that's like this one but
+       * that uses the given {@link Coder Coder<X>} to encode each of the
+       * elements of the input {@link PCollection PCollection<X>} into an output
+       * text line. Does not modify this object.
        *
-       * @param <X> the type of the elements of the input {@link PCollection}
+       * @param <X>
+       *          the type of the elements of the input {@link PCollection}
        */
       public <X> Bound<X> withCoder(Coder<X> coder) {
-        return new Bound<>(name, filenamePrefix, filenameSuffix, coder, numShards,
-            shardTemplate, validate);
+        return new Bound<>(name, filenamePrefix, filenameSuffix, coder, numShards, shardTemplate, validate);
       }
 
       /**
        * Returns a transform for writing to text files that's like this one but
        * that has GCS output path validation on pipeline creation disabled.
        *
-       * <p>This can be useful in the case where the GCS output location does
-       * not exist at the pipeline creation time, but is expected to be
-       * available at execution time.
+       * <p>
+       * This can be useful in the case where the GCS output location does not
+       * exist at the pipeline creation time, but is expected to be available at
+       * execution time.
        *
-       * <p>Does not modify this object.
+       * <p>
+       * Does not modify this object.
        */
       public Bound<T> withoutValidation() {
-        return new Bound<>(name, filenamePrefix, filenameSuffix, coder, numShards,
-            shardTemplate, false);
+        return new Bound<>(name, filenamePrefix, filenameSuffix, coder, numShards, shardTemplate, false);
       }
 
       @Override
       public PDone apply(PCollection<T> input) {
         if (filenamePrefix == null) {
-          throw new IllegalStateException(
-              "need to set the filename prefix of a UnboundedTextIO.Write transform");
+          throw new IllegalStateException("need to set the filename prefix of a UnboundedTextIO.Write transform");
         }
 
-        org.apache.beam.sdk.io.Write.Bound<T> write =
-            org.apache.beam.sdk.io.Write.to(
-                new TextSink<>(filenamePrefix, filenameSuffix, shardTemplate, coder));
+        org.apache.beam.sdk.io.Write.Bound<T> write = org.apache.beam.sdk.io.Write
+            .to(new TextSink<>(filenamePrefix, filenameSuffix, shardTemplate, coder));
         if (getNumShards() > 0) {
           write = write.withNumShards(getNumShards());
         }
@@ -384,18 +427,13 @@ public class UnboundedTextIO {
       public void populateDisplayData(DisplayData.Builder builder) {
         super.populateDisplayData(builder);
 
-        builder
-            .addIfNotNull(DisplayData.item("filePrefix", filenamePrefix)
-              .withLabel("Output File Prefix"))
-            .addIfNotDefault(DisplayData.item("fileSuffix", filenameSuffix)
-              .withLabel("Output Fix Suffix"), "")
-            .addIfNotDefault(DisplayData.item("shardNameTemplate", shardTemplate)
-              .withLabel("Output Shard Name Template"),
+        builder.addIfNotNull(DisplayData.item("filePrefix", filenamePrefix).withLabel("Output File Prefix"))
+            .addIfNotDefault(DisplayData.item("fileSuffix", filenameSuffix).withLabel("Output Fix Suffix"), "")
+            .addIfNotDefault(
+                DisplayData.item("shardNameTemplate", shardTemplate).withLabel("Output Shard Name Template"),
                 DEFAULT_SHARD_TEMPLATE)
-            .addIfNotDefault(DisplayData.item("validation", validate)
-              .withLabel("Validation Enabled"), true)
-            .addIfNotDefault(DisplayData.item("numShards", numShards)
-              .withLabel("Maximum Output Shards"), 0);
+            .addIfNotDefault(DisplayData.item("validation", validate).withLabel("Validation Enabled"), true)
+            .addIfNotDefault(DisplayData.item("numShards", numShards).withLabel("Maximum Output Shards"), 0);
       }
 
       /**
@@ -468,9 +506,13 @@ public class UnboundedTextIO {
     }
 
     /**
-     * Determine if a given filename matches a compression type based on its extension.
-     * @param filename the filename to match
-     * @return true iff the filename ends with the compression type's known extension.
+     * Determine if a given filename matches a compression type based on its
+     * extension.
+     * 
+     * @param filename
+     *          the filename to match
+     * @return true iff the filename ends with the compression type's known
+     *         extension.
      */
     public boolean matches(String filename) {
       return filename.toLowerCase().endsWith(filenameSuffix.toLowerCase());
@@ -482,27 +524,31 @@ public class UnboundedTextIO {
   private static final Pattern SHARD_OUTPUT_PATTERN = Pattern.compile("@([0-9]+|\\*)");
 
   private static void validateOutputComponent(String partialFilePattern) {
-    checkArgument(
-        !SHARD_OUTPUT_PATTERN.matcher(partialFilePattern).find(),
-        "Output name components are not allowed to contain @* or @N patterns: "
-        + partialFilePattern);
+    checkArgument(!SHARD_OUTPUT_PATTERN.matcher(partialFilePattern).find(),
+        "Output name components are not allowed to contain @* or @N patterns: " + partialFilePattern);
   }
 
   //////////////////////////////////////////////////////////////////////////////
 
   /** Disable construction of utility class. */
-  private UnboundedTextIO() {}
+  private UnboundedTextIO() {
+  }
 
   /**
-   * A {@link FileBasedSource} which can decode records delimited by new line characters.
+   * A {@link FileBasedSource} which can decode records delimited by new line
+   * characters.
    *
-   * <p>This source splits the data into records using {@code UTF-8} {@code \n}, {@code \r}, or
-   * {@code \r\n} as the delimiter. This source is not strict and supports decoding the last record
-   * even if it is not delimited. Finally, no records are decoded if the stream is empty.
+   * <p>
+   * This source splits the data into records using {@code UTF-8} {@code \n},
+   * {@code \r}, or {@code \r\n} as the delimiter. This source is not strict and
+   * supports decoding the last record even if it is not delimited. Finally, no
+   * records are decoded if the stream is empty.
    *
-   * <p>This source supports reading from any arbitrary byte position within the stream. If the
-   * starting position is not {@code 0}, then bytes are skipped until the first delimiter is found
-   * representing the beginning of the first record to be decoded.
+   * <p>
+   * This source supports reading from any arbitrary byte position within the
+   * stream. If the starting position is not {@code 0}, then bytes are skipped
+   * until the first delimiter is found representing the beginning of the first
+   * record to be decoded.
    */
   @VisibleForTesting
   static class TextSource<T> extends FileBasedSource<T> {
@@ -541,8 +587,9 @@ public class UnboundedTextIO {
     }
 
     /**
-     * A {@link org.apache.beam.sdk.io.FileBasedSource.FileBasedReader FileBasedReader}
-     * which can decode records delimited by new line characters.
+     * A {@link org.apache.beam.sdk.io.FileBasedSource.FileBasedReader
+     * FileBasedReader} which can decode records delimited by new line
+     * characters.
      *
      * See {@link TextSource} for further details.
      */
@@ -594,12 +641,13 @@ public class UnboundedTextIO {
       @Override
       protected void startReading(ReadableByteChannel channel) throws IOException {
         this.inChannel = channel;
-        // If the first offset is greater than zero, we need to skip bytes until we see our
+        // If the first offset is greater than zero, we need to skip bytes until
+        // we see our
         // first separator.
         if (getCurrentSource().getStartOffset() > 0) {
           checkState(channel instanceof SeekableByteChannel,
-              "%s only supports reading from a SeekableByteChannel when given a start offset"
-              + " greater than 0.", TextSource.class.getSimpleName());
+              "%s only supports reading from a SeekableByteChannel when given a start offset" + " greater than 0.",
+              TextSource.class.getSimpleName());
           long requiredPosition = getCurrentSource().getStartOffset() - 1;
           ((SeekableByteChannel) channel).position(requiredPosition);
           findSeparatorBounds();
@@ -614,15 +662,19 @@ public class UnboundedTextIO {
        * Locates the start position and end position of the next delimiter. Will
        * consume the channel till either EOF or the delimiter bounds are found.
        *
-       * <p>This fills the buffer and updates the positions as follows:
-       * <pre>{@code
+       * <p>
+       * This fills the buffer and updates the positions as follows:
+       * 
+       * <pre>
+       * {@code
        * ------------------------------------------------------
        * | element bytes | delimiter bytes | unconsumed bytes |
        * ------------------------------------------------------
        * 0            start of          end of              buffer
        *              separator         separator           size
        *              in buffer         in buffer
-       * }</pre>
+       * }
+       * </pre>
        */
       private void findSeparatorBounds() throws IOException {
         int bytePositionInBuffer = 0;
@@ -661,7 +713,8 @@ public class UnboundedTextIO {
         startOfRecord = startOfNextRecord;
         findSeparatorBounds();
 
-        // If we have reached EOF file and consumed all of the buffer then we know
+        // If we have reached EOF file and consumed all of the buffer then we
+        // know
         // that there are no more records.
         if (eof && buffer.size() == 0) {
           elementIsPresent = false;
@@ -674,10 +727,11 @@ public class UnboundedTextIO {
       }
 
       /**
-       * Decodes the current element updating the buffer to only contain the unconsumed bytes.
+       * Decodes the current element updating the buffer to only contain the
+       * unconsumed bytes.
        *
-       * This invalidates the currently stored {@code startOfSeparatorInBuffer} and
-       * {@code endOfSeparatorInBuffer}.
+       * This invalidates the currently stored {@code startOfSeparatorInBuffer}
+       * and {@code endOfSeparatorInBuffer}.
        */
       private void decodeCurrentElement() throws IOException {
         ByteString dataToDecode = buffer.substring(0, startOfSeparatorInBuffer);
@@ -687,10 +741,12 @@ public class UnboundedTextIO {
       }
 
       /**
-       * Returns false if we were unable to ensure the minimum capacity by consuming the channel.
+       * Returns false if we were unable to ensure the minimum capacity by
+       * consuming the channel.
        */
       private boolean tryToEnsureNumberOfBytesInBuffer(int minCapacity) throws IOException {
-        // While we aren't at EOF or haven't fulfilled the minimum buffer capacity,
+        // While we aren't at EOF or haven't fulfilled the minimum buffer
+        // capacity,
         // attempt to read more bytes.
         while (buffer.size() <= minCapacity && !eof) {
           eof = inChannel.read(readBuffer) == -1;
@@ -698,24 +754,24 @@ public class UnboundedTextIO {
           buffer = buffer.concat(ByteString.copyFrom(readBuffer));
           readBuffer.clear();
         }
-        // Return true if we were able to honor the minimum buffer capacity request
+        // Return true if we were able to honor the minimum buffer capacity
+        // request
         return buffer.size() >= minCapacity;
       }
     }
   }
 
   /**
-   * A {@link FileBasedSink} for text files. Produces text files with the new line separator
-   * {@code '\n'} represented in {@code UTF-8} format as the record separator.
-   * Each record (including the last) is terminated.
+   * A {@link FileBasedSink} for text files. Produces text files with the new
+   * line separator {@code '\n'} represented in {@code UTF-8} format as the
+   * record separator. Each record (including the last) is terminated.
    */
   @VisibleForTesting
   static class TextSink<T> extends FileBasedSink<T> {
     private final Coder<T> coder;
 
     @VisibleForTesting
-    TextSink(
-        String baseOutputFilename, String extension, String fileNameTemplate, Coder<T> coder) {
+    TextSink(String baseOutputFilename, String extension, String fileNameTemplate, Coder<T> coder) {
       super(baseOutputFilename, extension, fileNameTemplate);
       this.coder = coder;
     }
@@ -744,8 +800,8 @@ public class UnboundedTextIO {
     }
 
     /**
-     * A {@link org.apache.beam.sdk.io.FileBasedSink.FileBasedWriter FileBasedWriter}
-     * for text files.
+     * A {@link org.apache.beam.sdk.io.FileBasedSink.FileBasedWriter
+     * FileBasedWriter} for text files.
      */
     private static class TextWriter<T> extends FileBasedWriter<T> {
       private static final byte[] NEWLINE = "\n".getBytes(StandardCharsets.UTF_8);

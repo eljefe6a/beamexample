@@ -37,111 +37,111 @@ import org.joda.time.format.DateTimeFormatter;
  */
 public class Output {
 
-	private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS")
-			.withZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("PST")));
+  private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS")
+      .withZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("PST")));
 
-	private static class Base<InputT> extends PTransform<PCollection<InputT>, PDone> {
+  private static class Base<InputT> extends PTransform<PCollection<InputT>, PDone> {
 
-		private final String fileName;
-		protected MapContextElements<InputT, String> objToString;
+    private final String fileName;
+    protected MapContextElements<InputT, String> objToString;
 
-		public Base(String fileName) {
-			this.fileName = fileName;
-		}
+    public Base(String fileName) {
+      this.fileName = fileName;
+    }
 
-		@Override
-		public PDone apply(PCollection<InputT> input) {
-			PCollection<Void> output = input.apply(objToString).apply(ParDo.of(new UnboundedWriteIO(fileName)));
-			
-			return PDone.in(output.getPipeline());
-		}
-	}
+    @Override
+    public PDone apply(PCollection<InputT> input) {
+      PCollection<Void> output = input.apply(objToString).apply(ParDo.of(new UnboundedWriteIO(fileName)));
 
-	/**
-	 * Writes to the {@code user_score} table the following columns: -
-	 * {@code user} from the string key - {@code total_score} from the integer
-	 * value
-	 */
-	public static class WriteUserScoreSums extends Base<KV<String, Integer>> {
-		public WriteUserScoreSums() {
-			this("output/user_score");
-		}
+      return PDone.in(output.getPipeline());
+    }
+  }
 
-		protected WriteUserScoreSums(String tableName) {
-			super(tableName);
+  /**
+   * Writes to the {@code user_score} table the following columns: -
+   * {@code user} from the string key - {@code total_score} from the integer
+   * value
+   */
+  public static class WriteUserScoreSums extends Base<KV<String, Integer>> {
+    public WriteUserScoreSums() {
+      this("output/user_score");
+    }
 
-			objToString = MapContextElements.<KV<String, Integer>, String> via(
-					(KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
-						c.getKey()
-								.output("user: " + c.getKey().element().getKey() + " total_score:" + c.getKey().element().getValue());
+    protected WriteUserScoreSums(String tableName) {
+      super(tableName);
 
-						return null;
-					}).withOutputType(TypeDescriptors.strings());
-		}
-	}
+      objToString = MapContextElements
+          .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
+            c.getKey()
+                .output("user: " + c.getKey().element().getKey() + " total_score:" + c.getKey().element().getValue());
 
-	/**
-	 * Writes to the {@code hourly_team_score} table the following columns: -
-	 * {@code team} from the string key - {@code total_score} from the integer
-	 * value - {@code window_start} from the start time of the window
-	 */
-	public static class WriteHourlyTeamScore extends Base<KV<String, Integer>> {
-		public WriteHourlyTeamScore() {
-			this("output/hourly_team_score");
-		}
+            return null;
+          }).withOutputType(TypeDescriptors.strings());
+    }
+  }
 
-		protected WriteHourlyTeamScore(String tableName) {
-			super(tableName);
+  /**
+   * Writes to the {@code hourly_team_score} table the following columns: -
+   * {@code team} from the string key - {@code total_score} from the integer
+   * value - {@code window_start} from the start time of the window
+   */
+  public static class WriteHourlyTeamScore extends Base<KV<String, Integer>> {
+    public WriteHourlyTeamScore() {
+      this("output/hourly_team_score");
+    }
 
-			objToString = MapContextElements.<KV<String, Integer>, String> via(
-					(KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
-						IntervalWindow w = (IntervalWindow) c.getValue();
+    protected WriteHourlyTeamScore(String tableName) {
+      super(tableName);
 
-						c.getKey().output("team: " + c.getKey().element().getKey() + " total_score:"
-								+ c.getKey().element().getValue() + " window_start:" + DATE_TIME_FMT.print(w.start()));
+      objToString = MapContextElements
+          .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
+            IntervalWindow w = (IntervalWindow) c.getValue();
 
-						return null;
-					}).withOutputType(TypeDescriptors.strings());
-		}
-	}
+            c.getKey().output("team: " + c.getKey().element().getKey() + " total_score:"
+                + c.getKey().element().getValue() + " window_start:" + DATE_TIME_FMT.print(w.start()));
 
-	/**
-	 * Writes to the {@code triggered_user_score} table the following columns: -
-	 * {@code user} from the string key - {@code total_score} from the integer
-	 * value - {@code processing_time} the time at which the row was written
-	 */
-	public static class WriteTriggeredUserScoreSums extends WriteUserScoreSums {
-		public WriteTriggeredUserScoreSums() {
-			super("output/triggered_user_score");
+            return null;
+          }).withOutputType(TypeDescriptors.strings());
+    }
+  }
 
-			objToString = MapContextElements.<KV<String, Integer>, String> via(
-					(KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
-						c.getKey().output("processing_time: " + DATE_TIME_FMT.print(Instant.now()));
+  /**
+   * Writes to the {@code triggered_user_score} table the following columns: -
+   * {@code user} from the string key - {@code total_score} from the integer
+   * value - {@code processing_time} the time at which the row was written
+   */
+  public static class WriteTriggeredUserScoreSums extends WriteUserScoreSums {
+    public WriteTriggeredUserScoreSums() {
+      super("output/triggered_user_score");
 
-						return null;
-					}).withOutputType(TypeDescriptors.strings());
-		}
-	}
+      objToString = MapContextElements
+          .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
+            c.getKey().output("processing_time: " + DATE_TIME_FMT.print(Instant.now()));
 
-	/**
-	 * Writes to the {@code triggered_team_score} table the following columns: -
-	 * {@code team} from the string key - {@code total_score} from the integer
-	 * value - {@code window_start} from the start time of the window -
-	 * {@code processing_time} the time at which the row was written -
-	 * {@code timing} a string describing whether the row is early, on-time, or
-	 * late
-	 */
-	public static class WriteTriggeredTeamScore extends WriteHourlyTeamScore {
-		public WriteTriggeredTeamScore() {
-			super("output/triggered_team_score");
+            return null;
+          }).withOutputType(TypeDescriptors.strings());
+    }
+  }
 
-			objToString = MapContextElements.<KV<String, Integer>, String> via(
-					(KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
-						c.getKey().output("processing_time: " + DATE_TIME_FMT.print(Instant.now()) + " timing:"
-								+ c.getKey().pane().getTiming().toString());
+  /**
+   * Writes to the {@code triggered_team_score} table the following columns: -
+   * {@code team} from the string key - {@code total_score} from the integer
+   * value - {@code window_start} from the start time of the window -
+   * {@code processing_time} the time at which the row was written -
+   * {@code timing} a string describing whether the row is early, on-time, or
+   * late
+   */
+  public static class WriteTriggeredTeamScore extends WriteHourlyTeamScore {
+    public WriteTriggeredTeamScore() {
+      super("output/triggered_team_score");
 
-						return null;
-					}).withOutputType(TypeDescriptors.strings());
-		}
-	}
+      objToString = MapContextElements
+          .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
+            c.getKey().output("processing_time: " + DATE_TIME_FMT.print(Instant.now()) + " timing:"
+                + c.getKey().pane().getTiming().toString());
+
+            return null;
+          }).withOutputType(TypeDescriptors.strings());
+    }
+  }
 }

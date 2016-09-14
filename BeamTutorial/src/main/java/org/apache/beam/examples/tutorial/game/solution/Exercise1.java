@@ -31,23 +31,33 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TypeDescriptors;
 
 /**
- * This is the first in a series of exercises that walk through writing some basic Dataflow
- * pipelines using randomly generated data from the gaming scenario.
+ * This is the first in a series of exercises that walk through writing some
+ * basic Dataflow pipelines using randomly generated data from the gaming
+ * scenario.
  *
- * <p> In this gaming scenario, many users play, as members of different teams, over the course of a
- * day, and their actions are logged for processing.  Some of the logged game events may be late-
- * arriving, if users play on mobile devices and go transiently offline for a period
+ * <p>
+ * In this gaming scenario, many users play, as members of different teams, over
+ * the course of a day, and their actions are logged for processing. Some of the
+ * logged game events may be late- arriving, if users play on mobile devices and
+ * go transiently offline for a period
  *
- * <p> This exercise introduces the basics of a batch pipeline that extracts some data and computes
- * per-user sums.
+ * <p>
+ * This exercise introduces the basics of a batch pipeline that extracts some
+ * data and computes per-user sums.
  *
- * <p> This pipeline does batch processing of data collected from gaming events. It calculates the
- * sum of scores per user, over an entire batch of gaming data (collected, say, for each day). The
- * batch processing will not include any late data that arrives after the day's cutoff point.
+ * <p>
+ * This pipeline does batch processing of data collected from gaming events. It
+ * calculates the sum of scores per user, over an entire batch of gaming data
+ * (collected, say, for each day). The batch processing will not include any
+ * late data that arrives after the day's cutoff point.
  *
- * <p>To run this, you will need to set the following options in the "Arguments" tab of the run
- * configuration (you'll need this in future configurations as well):
- * <pre>{@code
+ * <p>
+ * To run this, you will need to set the following options in the "Arguments"
+ * tab of the run configuration (you'll need this in future configurations as
+ * well):
+ * 
+ * <pre>
+ * {@code
  *   --dataset=YOUR-DATASET
  * }
  * </pre>
@@ -55,8 +65,9 @@ import org.apache.beam.sdk.values.TypeDescriptors;
 public class Exercise1 {
 
   /**
-   * A transform to extract key/score information from GameActionInfo, and sum the scores. The
-   * constructor arg determines whether 'team' or 'user' info is extracted.
+   * A transform to extract key/score information from GameActionInfo, and sum
+   * the scores. The constructor arg determines whether 'team' or 'user' info is
+   * extracted.
    */
   public static class ExtractAndSumScore
       extends PTransform<PCollection<GameActionInfo>, PCollection<KV<String, Integer>>> {
@@ -75,28 +86,33 @@ public class Exercise1 {
       // Developer Docs: https://cloud.google.com/dataflow/model/par-do
       //
       // Fill in the code to:
-      //   1. Extract a KV<String, Integer> from each GameActionInfo corresponding to the given
-      //      KeyField and the score.
-      //   2. Compute the sum of the scores for each key.
-      //   3. Run your pipeline using the DirectPipelineRunner.
+      // 1. Extract a KV<String, Integer> from each GameActionInfo corresponding
+      // to the given
+      // KeyField and the score.
+      // 2. Compute the sum of the scores for each key.
+      // 3. Run your pipeline using the DirectPipelineRunner.
       return gameInfo
-        // MapElements is a PTransform for mapping a function over the elements of a
-        // PCollection. MapElements.via() takes a lambda expression defining the function
-        // to apply.
-	    // Write the expression that creates key-value pairs, using the KeyField as the
-	    // key and the score as the value. KV.of(key, value) creates a key-value pair.
-        // Java erasure means we can't determine the output type of our MapElements.
-        // We declare the output type explicitly using withOutputType.
-        // Use the following code to add the output type:
-        //
-        .apply(MapElements.via(
-        		(GameActionInfo info) -> {
-        			return KV.of(field.extract(info), info.getScore());
-        		})
-        		.withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))
-        // Sum is a family of PTransforms for computing the sum of elements in a PCollection.
-        // Select the appropriate method to compute the sum over each key.
-        .apply(Sum.integersPerKey());
+          // MapElements is a PTransform for mapping a function over the
+          // elements of a
+          // PCollection. MapElements.via() takes a lambda expression defining
+          // the function
+          // to apply.
+          // Write the expression that creates key-value pairs, using the
+          // KeyField as the
+          // key and the score as the value. KV.of(key, value) creates a
+          // key-value pair.
+          // Java erasure means we can't determine the output type of our
+          // MapElements.
+          // We declare the output type explicitly using withOutputType.
+          // Use the following code to add the output type:
+          //
+          .apply(MapElements.via((GameActionInfo info) -> {
+            return KV.of(field.extract(info), info.getScore());
+          }).withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))
+          // Sum is a family of PTransforms for computing the sum of elements in
+          // a PCollection.
+          // Select the appropriate method to compute the sum over each key.
+          .apply(Sum.integersPerKey());
       // [END EXERCISE 1]:
     }
   }
@@ -106,17 +122,16 @@ public class Exercise1 {
    */
   public static void main(String[] args) throws Exception {
     // Begin constructing a pipeline configured by commandline flags.
-    ExerciseOptions options =
-        PipelineOptionsFactory.fromArgs(args).withValidation().as(ExerciseOptions.class);
+    ExerciseOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(ExerciseOptions.class);
     Pipeline pipeline = Pipeline.create(options);
 
     pipeline
-       // Generate a bounded set of data.
-      .apply(new Input.BoundedGenerator())
-      // Extract and sum username/score pairs from the event data.
-      .apply("ExtractUserScore", new ExtractAndSumScore(KeyField.USER))
-      // Write the user and score to the "user_score" BigQuery table.
-      .apply(new Output.WriteUserScoreSums());
+        // Generate a bounded set of data.
+        .apply(new Input.BoundedGenerator())
+        // Extract and sum username/score pairs from the event data.
+        .apply("ExtractUserScore", new ExtractAndSumScore(KeyField.USER))
+        // Write the user and score to the "user_score" BigQuery table.
+        .apply(new Output.WriteUserScoreSums());
 
     // Run the batch pipeline.
     pipeline.run();

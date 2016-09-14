@@ -38,21 +38,20 @@ import javax.annotation.Nullable;
 /**
  * An {@link UnboundedSource} which generates {@link GameActionInfo} events.
  */
-public class InjectorUnboundedSource 
-    extends UnboundedSource<GameActionInfo, InjectorUnboundedSource.Checkpoint>{
-  
+public class InjectorUnboundedSource extends UnboundedSource<GameActionInfo, InjectorUnboundedSource.Checkpoint> {
+
   /**
-   * Checkpointing an {@link InjectorUnboundedSource} requires remembering our random number
-   * generator, among other things.
+   * Checkpointing an {@link InjectorUnboundedSource} requires remembering our
+   * random number generator, among other things.
    */
   public static class Checkpoint implements UnboundedSource.CheckpointMark, Serializable {
-    
+
     private final Random random;
-    
+
     public Checkpoint(Random random) {
       this.random = SerializableUtils.clone(random);
     }
-    
+
     @Override
     public void finalizeCheckpoint() throws IOException {
       // Nothing is necessary for checkpoints.
@@ -74,8 +73,8 @@ public class InjectorUnboundedSource
   }
 
   @Override
-  public List<InjectorUnboundedSource> generateInitialSplits(
-      int desiredNumSplits, PipelineOptions options) throws Exception {
+  public List<InjectorUnboundedSource> generateInitialSplits(int desiredNumSplits, PipelineOptions options)
+      throws Exception {
     int numSplits = Math.min(desiredNumSplits, config.numTeams);
     ArrayList<InjectorUnboundedSource> splits = new ArrayList<>(numSplits);
     for (SourceConfig config : config.split(numSplits)) {
@@ -85,8 +84,7 @@ public class InjectorUnboundedSource
   }
 
   @Override
-  public InjectorUnboundedReader createReader(PipelineOptions options,
-      @Nullable Checkpoint checkpoint) {
+  public InjectorUnboundedReader createReader(PipelineOptions options, @Nullable Checkpoint checkpoint) {
     return new InjectorUnboundedReader(this, checkpoint);
   }
 
@@ -104,40 +102,43 @@ public class InjectorUnboundedSource
   public Coder<GameActionInfo> getDefaultOutputCoder() {
     return AvroCoder.of(GameActionInfo.class);
   }
-  
+
   private static class InjectorUnboundedReader extends UnboundedReader<GameActionInfo> {
-     
+
     private final InjectorUnboundedSource source;
     private final Random random;
     private final InjectorIterator items;
-    
+
     private GameActionInfo currentEvent = null;
     private GameActionInfo nextEvent;
     private Instant nextEventTimestamp;
-    
-    // The "watermark" is simulated to be this far behind the current processing time. All arriving
-    // data is generated within this delay from now, with a high probability (80%)
+
+    // The "watermark" is simulated to be this far behind the current processing
+    // time. All arriving
+    // data is generated within this delay from now, with a high probability
+    // (80%)
     private static final Duration WATERMARK_DELAY = Duration.standardSeconds(5);
 
-    // 15% of the data will be between WATERMARK_DELAY and WATERMARK_DELAY + LATE_DELAY of now.
+    // 15% of the data will be between WATERMARK_DELAY and WATERMARK_DELAY +
+    // LATE_DELAY of now.
     // 5% of the data will be between WATERMARK_DELAY + LATE_DELAY and
     // WATERMARK_DELAY + 2 * LATE_DELAY of now.
     private static final Duration LATE_DELAY = Duration.standardSeconds(25);
 
     private static final int PERCENT_ONE_UNITS_LATE = 7;
     private static final int PERCENT_TWO_UNITS_LATE = 3;
-    
-    public InjectorUnboundedReader(InjectorUnboundedSource source,
-        @Nullable Checkpoint initialCheckpoint) {
+
+    public InjectorUnboundedReader(InjectorUnboundedSource source, @Nullable Checkpoint initialCheckpoint) {
       this.source = source;
       this.items = new InjectorIterator(source.config);
       random = initialCheckpoint == null ? new Random() : initialCheckpoint.getRandom();
-      
-      // TODO: Should probably put nextArrivalTime and currentEvent into the checkpoint?
+
+      // TODO: Should probably put nextArrivalTime and currentEvent into the
+      // checkpoint?
       nextEvent = items.next();
       nextEventTimestamp = new Instant(nextEvent.getTimestamp());
     }
-       
+
     @Override
     public boolean start() throws IOException {
       return advance();
@@ -169,18 +170,18 @@ public class InjectorUnboundedSource
         currentEvent = null;
         return false;
       } else {
-        // The next event is available now. Figure out what its actual event time was:
-        currentEvent = new GameActionInfo(
-            nextEvent.getUser(), nextEvent.getTeam(), nextEvent.getScore(),
+        // The next event is available now. Figure out what its actual event
+        // time was:
+        currentEvent = new GameActionInfo(nextEvent.getUser(), nextEvent.getTeam(), nextEvent.getScore(),
             arrivalTimeToEventTime(nextEvent.getTimestamp()));
-        
+
         // And we should peek to see when the next event will be ready.
         nextEvent = items.next();
         nextEventTimestamp = currentEvent.getTimestamp();
         return true;
       }
     }
-    
+
     @Override
     public Instant getWatermark() {
       return Instant.now().minus(WATERMARK_DELAY);
@@ -215,4 +216,3 @@ public class InjectorUnboundedSource
     }
   }
 }
-

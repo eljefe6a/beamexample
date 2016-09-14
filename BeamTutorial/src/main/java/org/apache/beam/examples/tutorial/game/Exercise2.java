@@ -30,14 +30,17 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TypeDescriptors;
 
 /**
- * In this exercise we'll run the same pipeline using the DataflowPipelineRunner. This
- * runs in the cloud using multiple workers.
+ * In this exercise we'll run the same pipeline using the
+ * DataflowPipelineRunner. This runs in the cloud using multiple workers.
  *
- * <p>In the "Pipeline Options" tab of the Dataflow run configuration use either the
- * DataflowPipelineRunner or the BlockingDataflowPipelineRunner. You will need to specify
- * your Google Cloud Project and a staging location. Make sure to include the dataset option
- * in the "Arguments" tab as well:
- * <pre>{@code
+ * <p>
+ * In the "Pipeline Options" tab of the Dataflow run configuration use either
+ * the DataflowPipelineRunner or the BlockingDataflowPipelineRunner. You will
+ * need to specify your Google Cloud Project and a staging location. Make sure
+ * to include the dataset option in the "Arguments" tab as well:
+ * 
+ * <pre>
+ * {@code
  *   --dataset=YOUR-DATASET
  * }
  * </pre>
@@ -45,8 +48,9 @@ import org.apache.beam.sdk.values.TypeDescriptors;
 public class Exercise2 {
 
   /**
-   * A transform to extract key/score information from GameActionInfo, and sum the scores. The
-   * constructor arg determines whether 'team' or 'user' info is extracted.
+   * A transform to extract key/score information from GameActionInfo, and sum
+   * the scores. The constructor arg determines whether 'team' or 'user' info is
+   * extracted.
    */
   public static class ExtractAndSumScore
       extends PTransform<PCollection<GameActionInfo>, PCollection<KV<String, Integer>>> {
@@ -58,13 +62,11 @@ public class Exercise2 {
     }
 
     @Override
-    public PCollection<KV<String, Integer>> apply(
-        PCollection<GameActionInfo> gameInfo) {
+    public PCollection<KV<String, Integer>> apply(PCollection<GameActionInfo> gameInfo) {
       return gameInfo
-        .apply(MapElements
-            .via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore()))
-            .withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))
-        .apply(Sum.<String>integersPerKey());
+          .apply(MapElements.via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore()))
+              .withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))
+          .apply(Sum.<String>integersPerKey());
     }
   }
 
@@ -73,17 +75,16 @@ public class Exercise2 {
    */
   public static void main(String[] args) throws Exception {
     // Begin constructing a pipeline configured by commandline flags.
-    ExerciseOptions options =
-        PipelineOptionsFactory.fromArgs(args).withValidation().as(ExerciseOptions.class);
+    ExerciseOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(ExerciseOptions.class);
     Pipeline pipeline = Pipeline.create(options);
 
     pipeline
-       // Generate a bounded set of data.
-      .apply(new Input.BoundedGenerator())
-      // Extract and sum username/score pairs from the event data.
-      .apply("ExtractUserScore", new ExtractAndSumScore(KeyField.USER))
-      // Write the user and score to the "user_score" BigQuery table.
-      .apply(new Output.WriteUserScoreSums());
+        // Generate a bounded set of data.
+        .apply(new Input.BoundedGenerator())
+        // Extract and sum username/score pairs from the event data.
+        .apply("ExtractUserScore", new ExtractAndSumScore(KeyField.USER))
+        // Write the user and score to the "user_score" BigQuery table.
+        .apply(new Output.WriteUserScoreSums());
 
     // Run the batch pipeline.
     pipeline.run();

@@ -33,17 +33,20 @@ import org.apache.beam.sdk.values.TypeDescriptors;
 import org.joda.time.Duration;
 
 /**
- * This pipeline extends {@link Exercise1} by windowing each of the input events based on the event
- * timestamp.
+ * This pipeline extends {@link Exercise1} by windowing each of the input events
+ * based on the event timestamp.
  *
- * <p> This pipeline processes data collected from gaming events in batch, building on {@link
- * Exercise1} but using fixed windows. It calculates the sum of scores per team, for each window,
- * optionally allowing specification of two timestamps before and after which data is filtered out.
- * This allows a model where late data collected after the intended analysis window can be included,
- * and any late-arriving data prior to the beginning of the analysis window can be removed as well.
- * By using windowing and adding element timestamps, we can do finer-grained analysis than with the
- * {@link Exercise1} pipeline. However, our batch processing is high-latency, in that we don't get
- * results from plays at the beginning of the batch's time period until the batch is processed.
+ * <p>
+ * This pipeline processes data collected from gaming events in batch, building
+ * on {@link Exercise1} but using fixed windows. It calculates the sum of scores
+ * per team, for each window, optionally allowing specification of two
+ * timestamps before and after which data is filtered out. This allows a model
+ * where late data collected after the intended analysis window can be included,
+ * and any late-arriving data prior to the beginning of the analysis window can
+ * be removed as well. By using windowing and adding element timestamps, we can
+ * do finer-grained analysis than with the {@link Exercise1} pipeline. However,
+ * our batch processing is high-latency, in that we don't get results from plays
+ * at the beginning of the batch's time period until the batch is processed.
  */
 public class Exercise3 {
 
@@ -66,12 +69,16 @@ public class Exercise3 {
       // Developer Docs: https://cloud.google.com/dataflow/model/windowing
       //
       return input
-          // Window.into() takes a WindowFn and returns a PTransform that applies windowing
-          // to the PCollection. FixedWindows.of() returns a WindowFn that assigns elements
-          // to windows of a fixed size. Use these methods to apply fixed windows of size
+          // Window.into() takes a WindowFn and returns a PTransform that
+          // applies windowing
+          // to the PCollection. FixedWindows.of() returns a WindowFn that
+          // assigns elements
+          // to windows of a fixed size. Use these methods to apply fixed
+          // windows of size
           // this.duration to the PCollection.
           .apply(new ChangeMe<>() /* TODO: YOUR CODE GOES HERE */)
-          // Remember the ExtractAndSumScore PTransform from Exercise 1? We parameterized
+          // Remember the ExtractAndSumScore PTransform from Exercise 1? We
+          // parameterized
           // it over the KeyField. Use it here to compute the team scores.
           .apply(new ChangeMe<>() /* TODO: YOUR CODE GOES HERE */);
       // [END EXERCISE 3]
@@ -83,25 +90,24 @@ public class Exercise3 {
    */
   public static void main(String[] args) throws Exception {
     // Begin constructing a pipeline configured by commandline flags.
-    ExerciseOptions options =
-        PipelineOptionsFactory.fromArgs(args).withValidation().as(ExerciseOptions.class);
+    ExerciseOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(ExerciseOptions.class);
     Pipeline pipeline = Pipeline.create(options);
 
     pipeline
-    // Read a bounded set of generated data
-      .apply(new Input.BoundedGenerator())
-      // Extract and sum the windowed teamname/scores
-      .apply(new WindowedTeamScore(Duration.standardMinutes(1)))
-      // Write the hourly team scores to the "hourly_team_score" table
-      .apply(new Output.WriteHourlyTeamScore());
-
+        // Read a bounded set of generated data
+        .apply(new Input.BoundedGenerator())
+        // Extract and sum the windowed teamname/scores
+        .apply(new WindowedTeamScore(Duration.standardMinutes(1)))
+        // Write the hourly team scores to the "hourly_team_score" table
+        .apply(new Output.WriteHourlyTeamScore());
 
     pipeline.run();
   }
 
   /**
-   * A transform to extract key/score information from GameActionInfo, and sum the scores. The
-   * constructor arg determines whether 'team' or 'user' info is extracted.
+   * A transform to extract key/score information from GameActionInfo, and sum
+   * the scores. The constructor arg determines whether 'team' or 'user' info is
+   * extracted.
    */
   private static class ExtractAndSumScore
       extends PTransform<PCollection<GameActionInfo>, PCollection<KV<String, Integer>>> {
@@ -113,13 +119,11 @@ public class Exercise3 {
     }
 
     @Override
-    public PCollection<KV<String, Integer>> apply(
-        PCollection<GameActionInfo> gameInfo) {
+    public PCollection<KV<String, Integer>> apply(PCollection<GameActionInfo> gameInfo) {
       return gameInfo
-        .apply(MapElements
-            .via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore()))
-            .withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))
-        .apply(Sum.<String>integersPerKey());
+          .apply(MapElements.via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore()))
+              .withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))
+          .apply(Sum.<String>integersPerKey());
     }
   }
 }

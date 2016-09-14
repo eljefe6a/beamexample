@@ -33,31 +33,33 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * A {@link BoundedSource} generating a fixed number of {@link GameActionInfo} events.
+ * A {@link BoundedSource} generating a fixed number of {@link GameActionInfo}
+ * events.
  */
 public class InjectorBoundedSource extends BoundedSource<GameActionInfo> {
 
   private static final long ESTIMATED_ITEM_SIZE_BYTES = 32;
-  
+
   private final SourceConfig config;
-  
+
   public InjectorBoundedSource(int numEntries, int minQps, int maxQps) {
     this(new SourceConfig(numEntries, 15, minQps, maxQps));
   }
-  
+
   private InjectorBoundedSource(SourceConfig config) {
     this.config = config;
   }
 
   @Override
-  public List<? extends BoundedSource<GameActionInfo>> splitIntoBundles(
-      long desiredBundleSizeBytes, PipelineOptions options) throws Exception {
-    
-    // Each source will generate all the data for a specific team. We have 15 numTeams, so at most
+  public List<? extends BoundedSource<GameActionInfo>> splitIntoBundles(long desiredBundleSizeBytes,
+      PipelineOptions options) throws Exception {
+
+    // Each source will generate all the data for a specific team. We have 15
+    // numTeams, so at most
     // we can split into 15 parts.
-    int desiredBundles = (int) Math.min(
-        config.numTeams, (config.numEntries * ESTIMATED_ITEM_SIZE_BYTES) / desiredBundleSizeBytes);
-    
+    int desiredBundles = (int) Math.min(config.numTeams,
+        (config.numEntries * ESTIMATED_ITEM_SIZE_BYTES) / desiredBundleSizeBytes);
+
     ArrayList<InjectorBoundedSource> shards = new ArrayList<>(desiredBundles);
     for (SourceConfig splitConfig : config.split(desiredBundles)) {
       shards.add(new InjectorBoundedSource(splitConfig));
@@ -98,9 +100,8 @@ public class InjectorBoundedSource extends BoundedSource<GameActionInfo> {
     public InjectorBoundedReader(InjectorBoundedSource source) {
       this.items = new InjectorIterator(source.config);
       this.source = source;
-      LOG.error("Creating reader for numEntries={} numTeams={} minQps={} maxQps={}", 
-          source.config.numEntries, source.config.numTeams,
-          source.config.minQps, source.config.maxQps);
+      LOG.error("Creating reader for numEntries={} numTeams={} minQps={} maxQps={}", source.config.numEntries,
+          source.config.numTeams, source.config.minQps, source.config.maxQps);
     }
 
     @Override

@@ -10,12 +10,17 @@ import org.joda.time.Instant;
  */
 @DefaultCoder(AvroCoder.class)
 public class GameActionInfo {
-  @Nullable private String user;
-  @Nullable private String team;
-  @Nullable private Integer score;
-  @Nullable private Instant timestamp;
+  @Nullable
+  private String user;
+  @Nullable
+  private String team;
+  @Nullable
+  private Integer score;
+  @Nullable
+  private Instant timestamp;
 
-  public GameActionInfo() {}
+  public GameActionInfo() {
+  }
 
   public GameActionInfo(String user, String team, Integer score, Instant timestamp) {
     this.user = user;
@@ -41,20 +46,19 @@ public class GameActionInfo {
   }
 
   /**
-   * The kinds of key fields that can be extracted from a {@link GameActionInfo}.
+   * The kinds of key fields that can be extracted from a
+   * {@link GameActionInfo}.
    */
   public enum KeyField {
     TEAM {
       @Override
-	public
-      String extract(GameActionInfo g) {
+      public String extract(GameActionInfo g) {
         return g.team;
       }
     },
     USER {
       @Override
-	public
-      String extract(GameActionInfo g) {
+      public String extract(GameActionInfo g) {
         return g.user;
       }
     };
