@@ -110,13 +110,14 @@ public class Output {
    * {@code user} from the string key - {@code total_score} from the integer
    * value - {@code processing_time} the time at which the row was written
    */
-  public static class WriteTriggeredUserScoreSums extends WriteUserScoreSums {
+  public static class WriteTriggeredUserScoreSums extends Base<KV<String, Integer>> {
     public WriteTriggeredUserScoreSums() {
       super("output/triggered_user_score");
 
       objToString = MapContextElements
           .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
-            c.getKey().output("processing_time: " + DATE_TIME_FMT.print(Instant.now()));
+            c.getKey().output("processing_time: " + DATE_TIME_FMT.print(Instant.now()) + " user: "
+                + c.getKey().element().getKey() + " total_score:" + c.getKey().element().getValue());
 
             return null;
           }).withOutputType(TypeDescriptors.strings());
@@ -131,14 +132,17 @@ public class Output {
    * {@code timing} a string describing whether the row is early, on-time, or
    * late
    */
-  public static class WriteTriggeredTeamScore extends WriteHourlyTeamScore {
+  public static class WriteTriggeredTeamScore extends Base<KV<String, Integer>> {
     public WriteTriggeredTeamScore() {
       super("output/triggered_team_score");
 
       objToString = MapContextElements
           .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
+            IntervalWindow w = (IntervalWindow) c.getValue();
+            
             c.getKey().output("processing_time: " + DATE_TIME_FMT.print(Instant.now()) + " timing:"
-                + c.getKey().pane().getTiming().toString());
+                + c.getKey().pane().getTiming().toString() + " team: " + c.getKey().element().getKey() + " total_score:"
+                    + c.getKey().element().getValue() + " window_start:" + DATE_TIME_FMT.print(w.start()));
 
             return null;
           }).withOutputType(TypeDescriptors.strings());
