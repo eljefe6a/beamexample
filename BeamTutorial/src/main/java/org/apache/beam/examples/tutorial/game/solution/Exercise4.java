@@ -18,9 +18,6 @@ package org.apache.beam.examples.tutorial.game.solution;
 
 import org.apache.beam.examples.tutorial.game.GameActionInfo;
 import org.apache.beam.examples.tutorial.game.GameActionInfo.KeyField;
-import org.apache.beam.examples.tutorial.game.solution.Exercise1.ExtractAndSumScore;
-import org.apache.beam.examples.tutorial.game.utils.ChangeMe;
-import org.apache.beam.examples.tutorial.game.utils.ChangeMeWindowFN;
 import org.apache.beam.examples.tutorial.game.utils.ExerciseOptions;
 import org.apache.beam.examples.tutorial.game.utils.Input;
 import org.apache.beam.examples.tutorial.game.utils.Output;
@@ -29,18 +26,14 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.Sum;
-import org.apache.beam.sdk.transforms.windowing.AfterPane;
 import org.apache.beam.sdk.transforms.windowing.AfterProcessingTime;
 import org.apache.beam.sdk.transforms.windowing.AfterWatermark;
 import org.apache.beam.sdk.transforms.windowing.FixedWindows;
-import org.apache.beam.sdk.transforms.windowing.GlobalWindow;
 import org.apache.beam.sdk.transforms.windowing.GlobalWindows;
 import org.apache.beam.sdk.transforms.windowing.Window;
-import org.apache.beam.sdk.util.WindowingStrategy;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TypeDescriptors;
-
 import org.joda.time.Duration;
 
 /**
@@ -99,7 +92,7 @@ public class Exercise4 {
               // We will be triggering repeatedly and forever, starting updateFrequency
               // after the first element seen.
               // Window.
-              .triggering(AfterProcessingTime.pastFirstElementInPane())
+              .triggering(AfterProcessingTime.pastFirstElementInPane().alignedTo(updateFrequency))
               // Specify the accumulation mode to ensure that each firing of the trigger
               // produces monotonically increasing sums rather than just deltas.
               .accumulatingFiredPanes()
