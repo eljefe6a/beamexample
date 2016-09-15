@@ -18,8 +18,6 @@ package org.apache.beam.examples.tutorial.game.solution;
 
 import org.apache.beam.examples.tutorial.game.GameActionInfo;
 import org.apache.beam.examples.tutorial.game.GameActionInfo.KeyField;
-import org.apache.beam.examples.tutorial.game.solution.Exercise1.ExtractAndSumScore;
-import org.apache.beam.examples.tutorial.game.utils.ChangeMe;
 import org.apache.beam.examples.tutorial.game.utils.ExerciseOptions;
 import org.apache.beam.examples.tutorial.game.utils.Input;
 import org.apache.beam.examples.tutorial.game.utils.Output;
@@ -33,7 +31,6 @@ import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TypeDescriptors;
-
 import org.joda.time.Duration;
 
 /**
