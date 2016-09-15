@@ -16,10 +16,11 @@
 
 package org.apache.beam.examples.tutorial.game.solution;
 
+import java.util.Map;
+
+import org.apache.beam.examples.tutorial.game.Exercise4;
 import org.apache.beam.examples.tutorial.game.GameActionInfo;
 import org.apache.beam.examples.tutorial.game.GameActionInfo.KeyField;
-import org.apache.beam.examples.tutorial.game.utils.ChangeMe;
-import org.apache.beam.examples.tutorial.game.utils.ChangeMeFN;
 import org.apache.beam.examples.tutorial.game.utils.ExerciseOptions;
 import org.apache.beam.examples.tutorial.game.utils.Input;
 import org.apache.beam.examples.tutorial.game.utils.Output;
@@ -35,7 +36,6 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.Sum;
 import org.apache.beam.sdk.transforms.Values;
 import org.apache.beam.sdk.transforms.View;
-import org.apache.beam.sdk.transforms.DoFn.ProcessElement;
 import org.apache.beam.sdk.transforms.windowing.FixedWindows;
 import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.KV;
@@ -43,12 +43,9 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TypeDescriptor;
 import org.apache.beam.sdk.values.TypeDescriptors;
-
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 /**
  * This is the final exercise in our series. We use side-inputs to build a more
@@ -104,16 +101,20 @@ public class Exercise5 {
                   // https://cloud.google.com/dataflow/model/par-do#side-inputs
                   //
                   // If the score is 2.5x the global average in each window, log
-                  // the
-                  // username and its score. Hint: (Use LOG.info for logging the
-                  // score)
-                  //
-                  // Increment the numSpammerUsers aggregator to record the
-                  // number of
-                  // spammers identified.
-                  //
-                  // Output only the spammy user entries.
-                  /* TODO: YOUR CODE GOES HERE */
+                  // the username and its score. Hint: (Use LOG.info for logging
+                  // the score)
+                  if (score * SCORE_WEIGHT > globalMean) {
+                    LOG.info("Spammer found username:" + c.element().getKey() + " score:" + score);
+
+                    //
+                    // Increment the numSpammerUsers aggregator to record the
+                    // number of spammers identified.
+                    numSpammerUsers.addValue(1L);
+
+                    //
+                    // Output only the spammy user entries.
+                    c.output(c.element());
+                  }
                   // [END EXERCISE 5 - Part 1]
                 }
               }));
@@ -143,19 +144,24 @@ public class Exercise5 {
       // https://cloud.google.com/dataflow/model/par-do#side-inputs
       //
       // For this part, we'll use the previously computed spammy users as a
-      // side-input
-      // to identify which entries should be filtered out.
-      // Compute team scores over only those individuals who are not identified
-      // as
+      // side-input to identify which entries should be filtered out. Compute
+      // team scores over only those individuals who are not identified as
       // spammers.
-      return teamWindows.apply("FilterOutSpammers", ParDo
-          // TODO: Configure the ParDo to read the side input. Hint: use
-          // ParDo.withSideInputs()
-          .of(new ChangeMeFN<GameActionInfo, GameActionInfo>() /*
-                                                                * TODO: YOUR
-                                                                * CODE GOES HERE
-                                                                */
-      ))
+      return teamWindows.apply("FilterOutSpammers",
+          ParDo
+              // Configure the ParDo to read the side input. Hint: use
+              // ParDo.withSideInputs()
+              .withSideInputs(spammersView).of(new DoFn<GameActionInfo, GameActionInfo>() {
+                @ProcessElement
+                public void processElement(ProcessContext c) {
+                  Map<String, Integer> spammers = c.sideInput(spammersView);
+                  
+                  // Only output those user not appearing in the spammers map
+                  if (!spammers.containsKey(c.element().getUser())) {
+                    c.output(c.element());
+                  }
+                }
+              }))
           // Use the ExtractAndSumScore to compute the team scores.
           .apply("ExtractTeamScore", new ExtractAndSumScore(KeyField.TEAM));
       // [END EXERCISE 5 - Part 2]
@@ -171,8 +177,7 @@ public class Exercise5 {
           // These might be robots/spammers.
           .apply("CalculateSpammyUsers", new CalculateSpammyUsers())
           // Derive a view from the collection of spammer users. It will be used
-          // as a side input
-          // in calculating the team score sums, below.
+          // as a side input in calculating the team score sums, below.
           .apply("CreateSpammersView", View.<String, Integer>asMap());
     }
   }
@@ -199,7 +204,7 @@ public class Exercise5 {
     }
   }
 
-  private static final Duration WINDOW_SIZE = Duration.standardMinutes(5);
+  private static final Duration WINDOW_SIZE = Duration.standardMinutes(1);
 
   public static void main(String[] args) throws Exception {
     ExerciseOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(ExerciseOptions.class);

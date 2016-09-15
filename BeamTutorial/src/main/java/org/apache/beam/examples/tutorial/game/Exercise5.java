@@ -194,7 +194,7 @@ public class Exercise5 {
     }
   }
 
-  private static final Duration WINDOW_SIZE = Duration.standardMinutes(5);
+  private static final Duration WINDOW_SIZE = Duration.standardMinutes(1);
 
   public static void main(String[] args) throws Exception {
     ExerciseOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(ExerciseOptions.class);
