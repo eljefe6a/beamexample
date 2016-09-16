@@ -6,7 +6,7 @@ An example Apache Beam project.
 
 This example can be used with conference talks and self-study. The base of the examples are taken from Beam's `example` directory. They are modified to use Beam as a dependency in the `pom.xml` instead of being compiled together. The example code is changed to output to local directories.
 
-### How to clone and run
+## How to clone and run
 
 1. Open a terminal window.
 1. Run `git clone git@github.com:eljefe6a/beamexample.git`
