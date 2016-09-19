@@ -72,7 +72,7 @@ public class UnboundedWriteIO extends DoFn<String, Void> {
 
   @ProcessElement
   public void processElement(ProcessContext c, BoundedWindow w) throws Exception {
-    outputs.add(w.toString() + " : " + c.element());
+    outputs.add(c.element());
   }
 
   @FinishBundle

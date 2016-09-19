@@ -67,13 +67,14 @@ public class Output {
       this("output/user_score");
     }
 
-    protected WriteUserScoreSums(String tableName) {
-      super(tableName);
+    protected WriteUserScoreSums(String fileName) {
+      super(fileName);
 
       objToString = MapContextElements
           .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
-            c.getKey()
-                .output("user: " + c.getKey().element().getKey() + " total_score:" + c.getKey().element().getValue());
+            String output = "user: " + c.getKey().element().getKey() + " total_score:"
+                + c.getKey().element().getValue();
+            c.getKey().output(output);
 
             return null;
           }).withOutputType(TypeDescriptors.strings());
@@ -97,8 +98,10 @@ public class Output {
           .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
             IntervalWindow w = (IntervalWindow) c.getValue();
 
-            c.getKey().output("team: " + c.getKey().element().getKey() + " total_score:"
-                + c.getKey().element().getValue() + " window_start:" + DATE_TIME_FMT.print(w.start()));
+            String output = w.toString() + " : team: " + c.getKey().element().getKey() + " total_score:"
+                + c.getKey().element().getValue() + " window_start:" + DATE_TIME_FMT.print(w.start());
+
+            c.getKey().output(output);
 
             return null;
           }).withOutputType(TypeDescriptors.strings());
@@ -116,8 +119,10 @@ public class Output {
 
       objToString = MapContextElements
           .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
-            c.getKey().output("processing_time: " + DATE_TIME_FMT.print(Instant.now()) + " user: "
-                + c.getKey().element().getKey() + " total_score:" + c.getKey().element().getValue());
+            String output = c.getValue().toString() + " : processing_time: " + DATE_TIME_FMT.print(Instant.now())
+                + " user: " + c.getKey().element().getKey() + " total_score:" + c.getKey().element().getValue();
+
+            c.getKey().output(output);
 
             return null;
           }).withOutputType(TypeDescriptors.strings());
@@ -139,10 +144,12 @@ public class Output {
       objToString = MapContextElements
           .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
             IntervalWindow w = (IntervalWindow) c.getValue();
-            
-            c.getKey().output("processing_time: " + DATE_TIME_FMT.print(Instant.now()) + " timing:"
-                + c.getKey().pane().getTiming().toString() + " team: " + c.getKey().element().getKey() + " total_score:"
-                    + c.getKey().element().getValue() + " window_start:" + DATE_TIME_FMT.print(w.start()));
+
+            String output = c.getValue().toString() + " : processing_time: " + DATE_TIME_FMT.print(Instant.now())
+                + " timing:" + c.getKey().pane().getTiming().toString() + " team: " + c.getKey().element().getKey()
+                + " total_score:" + c.getKey().element().getValue() + " window_start:" + DATE_TIME_FMT.print(w.start());
+
+            c.getKey().output(output);
 
             return null;
           }).withOutputType(TypeDescriptors.strings());
