@@ -28,6 +28,19 @@
           <target>1.8</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.4.3</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -53,7 +66,31 @@
       <artifactId>beam-sdks-java-io-google-cloud-platform</artifactId>
       <version>${beam.version}</version>
     </dependency>
-
+    
+    <!-- Runners for cloud demos -->
+    <dependency>
+      <groupId>org.apache.beam</groupId>
+      <artifactId>beam-runners-spark</artifactId>
+      <version>${beam.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.beam</groupId>
+      <artifactId>beam-runners-google-cloud-dataflow-java</artifactId>
+      <version>${beam.version}</version>
+    </dependency>
+    
+    <!-- Download Beam examples to run as demos -->
+    <dependency>
+      <groupId>org.apache.beam</groupId>
+      <artifactId>beam-examples-java8</artifactId>
+      <version>${beam.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.beam</groupId>
+      <artifactId>beam-examples-java</artifactId>
+      <version>${beam.version}</version>
+    </dependency>
+        
     <!-- slf4j API frontend binding with JUL backend -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -66,7 +103,7 @@
       <version>${slf4j.version}</version>
     </dependency>
   </dependencies>
-  
+    
   <repositories>
     <repository>
       <id>apache-maven-repo</id>
