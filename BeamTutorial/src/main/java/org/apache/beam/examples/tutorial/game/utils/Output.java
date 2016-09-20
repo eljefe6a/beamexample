@@ -119,8 +119,10 @@ public class Output {
 
       objToString = MapContextElements
           .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
-            String output = c.getValue().toString() + " : processing_time: " + DATE_TIME_FMT.print(Instant.now())
-                + " user: " + c.getKey().element().getKey() + " total_score:" + c.getKey().element().getValue();
+            String output =
+                "user: " + c.getKey().element().getKey()
+                + " processing_time: " + DATE_TIME_FMT.print(Instant.now())
+                + " total_score:" + c.getKey().element().getValue();
 
             c.getKey().output(output);
 
@@ -145,9 +147,11 @@ public class Output {
           .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
             IntervalWindow w = (IntervalWindow) c.getValue();
 
-            String output = c.getValue().toString() + " : processing_time: " + DATE_TIME_FMT.print(Instant.now())
-                + " timing:" + c.getKey().pane().getTiming().toString() + " team: " + c.getKey().element().getKey()
-                + " total_score:" + c.getKey().element().getValue() + " window_start:" + DATE_TIME_FMT.print(w.start());
+            String output = c.getValue().toString() + " : team: " + c.getKey().element().getKey()
+                + " processing_time: " + DATE_TIME_FMT.print(Instant.now())
+                + " timing: " + c.getKey().pane().getTiming().toString()
+                + " total_score: " + c.getKey().element().getValue()
+                + " window_start: " + DATE_TIME_FMT.print(w.start());
 
             c.getKey().output(output);
 

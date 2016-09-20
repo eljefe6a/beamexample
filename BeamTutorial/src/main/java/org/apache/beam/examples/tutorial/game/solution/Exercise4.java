@@ -30,6 +30,7 @@ import org.apache.beam.sdk.transforms.windowing.AfterProcessingTime;
 import org.apache.beam.sdk.transforms.windowing.AfterWatermark;
 import org.apache.beam.sdk.transforms.windowing.FixedWindows;
 import org.apache.beam.sdk.transforms.windowing.GlobalWindows;
+import org.apache.beam.sdk.transforms.windowing.Repeatedly;
 import org.apache.beam.sdk.transforms.windowing.Window;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
@@ -103,17 +104,14 @@ public class Exercise4 {
               // We want periodic results every updateFrequency of processing
               // time. We will be triggering repeatedly and forever, starting
               // updateFrequency after the first element seen. Window.
-              .triggering(AfterProcessingTime.pastFirstElementInPane().alignedTo(updateFrequency))
+              .triggering(Repeatedly.forever(
+                  AfterProcessingTime
+                    .pastFirstElementInPane()
+                    .plusDelayOf(updateFrequency)))
               // Specify the accumulation mode to ensure that each firing of the
               // trigger produces monotonically increasing sums rather than just
               // deltas.
-              .accumulatingFiredPanes()
-              // When windowing on an unbounded stream, there is always the
-              // chance that the watermark is wrong and we encounter late data.
-              // This method specifies our upper bound on how "late" data should
-              // allowed to be before being dropped. It tunes how data is kept
-              // around waiting for these late elements.
-              .withAllowedLateness(allowedLateness))
+              .accumulatingFiredPanes())
 
           // Extract and sum username/score pairs from the event data.
           // You can use the ExtractAndSumScore transform again.
@@ -192,14 +190,14 @@ public class Exercise4 {
       return gameInfo
           .apply(MapElements.via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore()))
               .withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))
-          .apply(Window.into(FixedWindows.of(Duration.millis(1000)))).apply(Sum.<String>integersPerKey());
+          .apply(Sum.<String>integersPerKey());
     }
   }
 
   private static final Duration ALLOWED_LATENESS = Duration.standardMinutes(30);
-  private static final Duration EARLY_UPDATE_FREQUENCY = Duration.standardMinutes(1);
-  private static final Duration LATE_UPDATE_FREQUENCY = Duration.standardMinutes(2);
-  private static final Duration WINDOW_SIZE = Duration.standardMinutes(5);
+  private static final Duration EARLY_UPDATE_FREQUENCY = Duration.standardSeconds(10);
+  private static final Duration LATE_UPDATE_FREQUENCY = Duration.standardSeconds(20);
+  private static final Duration WINDOW_SIZE = Duration.standardMinutes(1);
 
   public static void main(String[] args) throws Exception {
     ExerciseOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(ExerciseOptions.class);
