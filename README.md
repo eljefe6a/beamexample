@@ -44,7 +44,7 @@ Create the package.
 1. Allow all users (Spark may run as a different user) to write to the `output` directory. `chmod 1777 output`.
 1. Change the output file to a fully-qualified path. For example, `this("output/user_score");` to `this("/home/vmuser/output/user_score");`
 1. Run `mvn package`
-1. Run `spark-submit --jars ~/.m2/repository/org/apache/beam/beam-runners-spark/0.3.0-incubating-SNAPSHOT/beam-runners-spark-0.3.0-incubating-SNAPSHOT.jar --class org.apache.beam.examples.tutorial.game.solution.Exercise2 --master yarn-client target/Tutorial-0.0.1-SNAPSHOT.jar --runner=SparkRunner --sparkMaster=local`
+1. Run `spark-submit --jars ~/.m2/repository/org/apache/beam/beam-runners-spark/0.3.0-incubating-SNAPSHOT/beam-runners-spark-0.3.0-incubating-SNAPSHOT.jar --class org.apache.beam.examples.tutorial.game.solution.Exercise2 --master yarn-client target/Tutorial-0.0.1-SNAPSHOT.jar --runner=SparkRunner`
 
 ## Running Example Code in Spark
 
