@@ -1,6 +1,7 @@
 package org.apache.beam.examples.tutorial.game.utils;
 
 import org.apache.beam.examples.tutorial.game.Exercise1;
+import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.Validation;
@@ -14,4 +15,9 @@ public interface ExerciseOptions extends PipelineOptions {
   String getDataset();
 
   void setDataset(String value);
+
+  @Description("Prefix for output files, either local path or cloud storage location.")
+  @Default.String("output/")
+  String getOutputPrefix();
+  void setOutputPrefix(String value);
 }

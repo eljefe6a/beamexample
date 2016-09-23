@@ -3,12 +3,15 @@ package org.apache.beam.examples.tutorial.game.utils;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.IOException;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
+import org.apache.beam.sdk.util.IOChannelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +35,11 @@ public class UnboundedWriteIO extends DoFn<String, Void> {
   private static Map<String, OutputStream> streams = Maps.newHashMap();
 
   private static synchronized void writeToStream(String prefix, List<String> outputs) throws IOException {
+
     // Check if stream for this prefix has been created yet. Initialize if not.
     OutputStream stream = streams.get(prefix);
     if (stream == null) {
-      stream = new FileOutputStream(prefix);
+      stream = Channels.newOutputStream(IOChannelUtils.create(prefix, "text/plain"));
       streams.put(prefix, stream);
     }
 
