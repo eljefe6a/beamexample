@@ -74,6 +74,12 @@
       <version>${beam.version}</version>
     </dependency>
     <dependency>
+		<groupId>org.apache.spark</groupId>
+		<artifactId>spark-core_2.10</artifactId>
+		<version>1.6.0</version>
+	</dependency>
+	
+    <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-runners-google-cloud-dataflow-java</artifactId>
       <version>${beam.version}</version>
