@@ -83,6 +83,13 @@
       <artifactId>beam-runners-spark</artifactId>
       <version>${beam.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.beam</groupId>
+      <artifactId>beam-runners-flink_2.10</artifactId>
+      <version>${beam.version}</version>
+    </dependency>
+
     <!-- Manually adding Spark dependency due to bug -->
     <dependency>
 		<groupId>org.apache.spark</groupId>
