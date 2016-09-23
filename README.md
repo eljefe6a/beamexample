@@ -12,6 +12,7 @@ This example can be used with conference talks and self-study. The base of the e
 1. Run `git clone git@github.com:eljefe6a/beamexample.git`
 1. Run `cd beamexample/BeamTutorial`
 1. Run `mvn compile`
+1. Create local output directory: `mkdir output`
 1. Run `mvn exec:java -Dexec.mainClass="org.apache.beam.examples.tutorial.game.solution.Exercise1"`
 1. Run `cat output/user_score` to verify the program ran correctly and the output file was created.
 
