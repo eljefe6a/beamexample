@@ -30,6 +30,13 @@ Create the package.
 
 1. `mvn package`
 
+### Apache Flink
+
+1. Follow the first steps from [Flink's Quickstart](https://ci.apache.org/projects/flink/flink-docs-release-1.1/quickstart/setup_quickstart.html) to [download Flink](https://ci.apache.org/projects/flink/flink-docs-release-1.1/quickstart/setup_quickstart.html#download) and [start a local Flink cluster](https://ci.apache.org/projects/flink/flink-docs-release-1.1/quickstart/setup_quickstart.html#start-a-local-flink-cluster).
+1. Create the `output` directory.
+1. Run `mvn exec:java -Dexec.mainClass=org.apache.beam.examples.tutorial.game.solution.Exercise1 -Dexec.args='--runner=FlinkRunner --flinkMaster=[local]'` (it will not terminate - just kill it when it is finished)
+1. Run `cat output/user_score` to verify the pipeline ran correctly and the output file was created.
+
 ### Apache Spark
 
 1. Create the `output` directory.
