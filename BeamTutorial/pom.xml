@@ -90,7 +90,9 @@
       <version>${beam.version}</version>
     </dependency>
 
-    <!-- Manually adding Spark dependency due to bug -->
+    <!-- Spark needs to be added explicitly as it usually runs on pre-deployed clusters -->
+    <!-- but we want to deploy it with the application. -->
+    <!-- More information: https://github.com/eljefe6a/beamexample/issues/3 -->
     <dependency>
 		<groupId>org.apache.spark</groupId>
 		<artifactId>spark-core_2.10</artifactId>
