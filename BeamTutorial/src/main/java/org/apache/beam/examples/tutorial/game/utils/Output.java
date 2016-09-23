@@ -18,6 +18,7 @@ package org.apache.beam.examples.tutorial.game.utils;
 
 import java.util.TimeZone;
 
+import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
@@ -25,6 +26,7 @@ import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.transforms.windowing.IntervalWindow;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
+import org.apache.beam.sdk.values.PCollection.IsBounded;
 import org.apache.beam.sdk.values.PDone;
 import org.apache.beam.sdk.values.TypeDescriptors;
 import org.joda.time.DateTimeZone;
@@ -51,11 +53,18 @@ public class Output {
 
     @Override
     public PDone apply(PCollection<InputT> input) {
-      String outputPrefix = input.getPipeline().getOptions().as(ExerciseOptions.class).getOutputPrefix();
-      PCollection<Void> output =
-          input.apply(objToString).apply(ParDo.of(new UnboundedWriteIO(outputPrefix + fileName)));
+      String outputFilename =
+          input.getPipeline().getOptions().as(ExerciseOptions.class).getOutputPrefix() + fileName;
 
-      return PDone.in(output.getPipeline());
+      PCollection<String> formatted = input.apply(objToString);
+
+      if (input.isBounded().equals(IsBounded.BOUNDED)) {
+        formatted.apply(TextIO.Write.to(outputFilename));
+      } else {
+        formatted.apply(ParDo.of(new UnboundedWriteIO(outputFilename)));
+      }
+
+      return PDone.in(input.getPipeline());
     }
   }
 
