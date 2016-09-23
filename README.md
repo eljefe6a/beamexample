@@ -32,10 +32,13 @@ Create the package.
 
 ### Apache Spark
 
-1. Place a text file like Shakespeare in HDFS.
+1. Create the `output` directory.
+1. Allow all users (Spark may run as a different user) to write to the `output` directory. `chmod 1777 output`.
+1. Change the output file to a fully-qualified path. For example, `this("output/user_score");` to `this("/home/vmuser/output/user_score");`
+1. Run `mvn package`
 1. Run `spark-submit --jars ~/.m2/repository/org/apache/beam/beam-runners-spark/0.3.0-incubating-SNAPSHOT/beam-runners-spark-0.3.0-incubating-SNAPSHOT.jar --class org.apache.beam.examples.tutorial.game.solution.Exercise2 --master yarn-client target/Tutorial-0.0.1-SNAPSHOT.jar --runner=SparkRunner --sparkMaster=local`
 
-**NOTE:** There is [a bug](https://issues.apache.org/jira/browse/BEAM-17) in Beam's Spark runner that doesn't allow this program to run yet.
+## Running Example Code in Spark
 
 To run one of the Beam examples on Spark, do this:
 

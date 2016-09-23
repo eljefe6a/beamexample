@@ -38,6 +38,16 @@
             <goals>
               <goal>shade</goal>
             </goals>
+            <configuration>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/**</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -73,12 +83,13 @@
       <artifactId>beam-runners-spark</artifactId>
       <version>${beam.version}</version>
     </dependency>
+    <!-- Manually adding Spark dependency due to bug -->
     <dependency>
 		<groupId>org.apache.spark</groupId>
 		<artifactId>spark-core_2.10</artifactId>
 		<version>1.6.0</version>
 	</dependency>
-	
+
     <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-runners-google-cloud-dataflow-java</artifactId>
