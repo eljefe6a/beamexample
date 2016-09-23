@@ -51,7 +51,9 @@ public class Output {
 
     @Override
     public PDone apply(PCollection<InputT> input) {
-      PCollection<Void> output = input.apply(objToString).apply(ParDo.of(new UnboundedWriteIO(fileName)));
+      String outputPrefix = input.getPipeline().getOptions().as(ExerciseOptions.class).getOutputPrefix();
+      PCollection<Void> output =
+          input.apply(objToString).apply(ParDo.of(new UnboundedWriteIO(outputPrefix + fileName)));
 
       return PDone.in(output.getPipeline());
     }
@@ -64,7 +66,7 @@ public class Output {
    */
   public static class WriteUserScoreSums extends Base<KV<String, Integer>> {
     public WriteUserScoreSums() {
-      this("output/user_score");
+      this("user_score");
     }
 
     protected WriteUserScoreSums(String fileName) {
@@ -88,7 +90,7 @@ public class Output {
    */
   public static class WriteHourlyTeamScore extends Base<KV<String, Integer>> {
     public WriteHourlyTeamScore() {
-      this("output/hourly_team_score");
+      this("hourly_team_score");
     }
 
     protected WriteHourlyTeamScore(String tableName) {
@@ -115,7 +117,7 @@ public class Output {
    */
   public static class WriteTriggeredUserScoreSums extends Base<KV<String, Integer>> {
     public WriteTriggeredUserScoreSums() {
-      super("output/triggered_user_score");
+      super("triggered_user_score");
 
       objToString = MapContextElements
           .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
@@ -141,7 +143,7 @@ public class Output {
    */
   public static class WriteTriggeredTeamScore extends Base<KV<String, Integer>> {
     public WriteTriggeredTeamScore() {
-      super("output/triggered_team_score");
+      super("triggered_team_score");
 
       objToString = MapContextElements
           .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
