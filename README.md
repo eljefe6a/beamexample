@@ -49,6 +49,8 @@ This example can be used with conference talks and self-study. The base of the e
 1. Run `spark-submit --jars ~/.m2/repository/org/apache/beam/beam-runners-spark/0.3.0-incubating-SNAPSHOT/beam-runners-spark-0.3.0-incubating-SNAPSHOT.jar --class org.apache.beam.examples.tutorial.game.solution.Exercise2 --master yarn-client target/Tutorial-0.0.1-SNAPSHOT.jar --runner=SparkRunner`
 
 ### Apache Apex
+The instructions below are general guidelines to use Apex runner as of now. The examples in the this respository won't work as is.
+
 1. Download pre-configured [Sandbox from here](http://www.datatorrent.com/downloads/3.6.0/datatorrent-sandbox-3.6.0-beam.ova). The sandbox has all pre-requisites installed and setup.
 1. Download some data for processing. Run `curl http://www.gutenberg.org/cache/epub/1128/pg1128.txt > /tmp/kinglear.txt`
 1. Move data to input directory. Run `hdfs dfs -put /tmp/kinglear.txt /tmp/input/`
