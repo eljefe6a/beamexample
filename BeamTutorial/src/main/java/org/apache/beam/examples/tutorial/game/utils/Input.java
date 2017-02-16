@@ -34,7 +34,7 @@ public class Input {
    */
   public static class BoundedGenerator extends PTransform<PBegin, PCollection<GameActionInfo>> {
     @Override
-    public PCollection<GameActionInfo> apply(PBegin input) {
+    public PCollection<GameActionInfo> expand(PBegin input) {
       return input.apply(Read.from(new InjectorBoundedSource(100, 180, 200)));
     }
   }
@@ -44,7 +44,7 @@ public class Input {
    */
   public static class UnboundedGenerator extends PTransform<PBegin, PCollection<GameActionInfo>> {
     @Override
-    public PCollection<GameActionInfo> apply(PBegin input) {
+    public PCollection<GameActionInfo> expand(PBegin input) {
       return input.apply(Read.from(new InjectorUnboundedSource()));
     }
   }

@@ -16,11 +16,6 @@
 
 package org.apache.beam.examples.tutorial.game.utils;
 
-import com.google.api.services.bigquery.model.TableFieldSchema;
-import com.google.api.services.bigquery.model.TableReference;
-import com.google.api.services.bigquery.model.TableRow;
-import com.google.api.services.bigquery.model.TableSchema;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +31,13 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.SerializableFunction;
-import org.apache.beam.sdk.transforms.DoFn.ProcessElement;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
+
+import com.google.api.services.bigquery.model.TableFieldSchema;
+import com.google.api.services.bigquery.model.TableReference;
+import com.google.api.services.bigquery.model.TableRow;
+import com.google.api.services.bigquery.model.TableSchema;
 
 /**
  * Generate, format, and write BigQuery table row information. Use provided
@@ -114,7 +113,7 @@ public class WriteToBigQuery<T> extends PTransform<PCollection<T>, PDone> {
   }
 
   @Override
-  public PDone apply(PCollection<T> teamAndScore) {
+  public PDone expand(PCollection<T> teamAndScore) {
     return teamAndScore.apply("ConvertToRow", ParDo.of(new BuildRowFn()))
         .apply(BigQueryIO.Write.to(getTable(teamAndScore.getPipeline(), tableName)).withSchema(getSchema())
             .withCreateDisposition(CreateDisposition.CREATE_IF_NEEDED)

@@ -78,7 +78,7 @@ public class Exercise1 {
     }
 
     @Override
-    public PCollection<KV<String, Integer>> apply(PCollection<GameActionInfo> gameInfo) {
+    public PCollection<KV<String, Integer>> expand(PCollection<GameActionInfo> gameInfo) {
 
       // [START EXERCISE 1]:
       // JavaDoc: https://cloud.google.com/dataflow/java-sdk/JavaDoc

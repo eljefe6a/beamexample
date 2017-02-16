@@ -63,7 +63,7 @@ public class Exercise2 {
     }
 
     @Override
-    public PCollection<KV<String, Integer>> apply(PCollection<GameActionInfo> gameInfo) {
+    public PCollection<KV<String, Integer>> expand(PCollection<GameActionInfo> gameInfo) {
       return gameInfo
           .apply(MapElements.via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore()))
               .withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))

@@ -73,7 +73,7 @@ public class Exercise5 {
     private static final double SCORE_WEIGHT = 2.5;
 
     @Override
-    public PCollection<KV<String, Integer>> apply(PCollection<KV<String, Integer>> userScores) {
+    public PCollection<KV<String, Integer>> expand(PCollection<KV<String, Integer>> userScores) {
 
       // Get the sum of scores for each user.
       PCollection<KV<String, Integer>> sumScores = userScores.apply("UserSum", Sum.<String>integersPerKey());
@@ -89,7 +89,7 @@ public class Exercise5 {
               // use the derived mean total score as a side input
               .withSideInputs(globalMeanScore).of(new DoFn<KV<String, Integer>, KV<String, Integer>>() {
                 private final Aggregator<Long, Long> numSpammerUsers = createAggregator("SpammerUsers",
-                    new Sum.SumLongFn());
+                		Sum.ofLongs());
 
                 @ProcessElement
                 public void processElement(ProcessContext c) {
@@ -131,7 +131,7 @@ public class Exercise5 {
     }
 
     @Override
-    public PCollection<KV<String, Integer>> apply(PCollection<GameActionInfo> input) {
+    public PCollection<KV<String, Integer>> expand(PCollection<GameActionInfo> input) {
       // Create a side input view of the spammy users
       final PCollectionView<Map<String, Integer>> spammersView = createSpammersView(input);
 
@@ -197,7 +197,7 @@ public class Exercise5 {
     }
 
     @Override
-    public PCollection<KV<String, Integer>> apply(PCollection<GameActionInfo> gameInfo) {
+    public PCollection<KV<String, Integer>> expand(PCollection<GameActionInfo> gameInfo) {
       return gameInfo.apply(MapElements.via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore()))
           .withOutputType(new TypeDescriptor<KV<String, Integer>>() {
           })).apply(Sum.<String>integersPerKey());

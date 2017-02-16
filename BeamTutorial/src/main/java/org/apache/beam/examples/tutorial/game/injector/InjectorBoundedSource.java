@@ -73,11 +73,6 @@ public class InjectorBoundedSource extends BoundedSource<GameActionInfo> {
   }
 
   @Override
-  public boolean producesSortedKeys(PipelineOptions options) throws Exception {
-    return false;
-  }
-
-  @Override
   public BoundedReader<GameActionInfo> createReader(PipelineOptions options) throws IOException {
     return new InjectorBoundedReader(this);
   }

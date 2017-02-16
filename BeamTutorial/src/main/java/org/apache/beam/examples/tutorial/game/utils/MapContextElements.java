@@ -76,7 +76,7 @@ public class MapContextElements<InputT, OutputT> extends PTransform<PCollection<
   }
 
   @Override
-  public PCollection<OutputT> apply(PCollection<InputT> input) {
+  public PCollection<OutputT> expand(PCollection<InputT> input) {
     return input.apply("Map", ParDo.of(new DoFn<InputT, OutputT>() {
       @ProcessElement
       public void processElement(ProcessContext c, BoundedWindow w) {
@@ -87,7 +87,7 @@ public class MapContextElements<InputT, OutputT> extends PTransform<PCollection<
       public void populateDisplayData(DisplayData.Builder builder) {
         MapContextElements.this.populateDisplayData(builder);
       }
-    })).setTypeDescriptorInternal(outputType);
+    })).setTypeDescriptor(outputType);
   }
 
   @Override

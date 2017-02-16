@@ -52,7 +52,7 @@ public class Output {
     }
 
     @Override
-    public PDone apply(PCollection<InputT> input) {
+    public PDone expand(PCollection<InputT> input) {
       String outputFilename =
           input.getPipeline().getOptions().as(ExerciseOptions.class).getOutputPrefix() + fileName;
 

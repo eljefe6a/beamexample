@@ -82,7 +82,7 @@ public class Exercise4 {
     }
 
     @Override
-    public PCollection<KV<String, Integer>> apply(PCollection<GameActionInfo> input) {
+    public PCollection<KV<String, Integer>> expand(PCollection<GameActionInfo> input) {
       // [START EXERCISE 4 Part 1 - User Leaderboard]
       // JavaDoc: https://cloud.google.com/dataflow/java-sdk/JavaDoc
       // Developer Docs: https://cloud.google.com/dataflow/model/triggering
@@ -140,7 +140,7 @@ public class Exercise4 {
     }
 
     @Override
-    public PCollection<KV<String, Integer>> apply(PCollection<GameActionInfo> input) {
+    public PCollection<KV<String, Integer>> expand(PCollection<GameActionInfo> input) {
       // [START EXERCISE 4 Part 2 - Team Leaderboard]
       // JavaDoc: https://cloud.google.com/dataflow/java-sdk/JavaDoc
       // Developer Docs: https://cloud.google.com/dataflow/model/triggering
@@ -186,7 +186,7 @@ public class Exercise4 {
     }
 
     @Override
-    public PCollection<KV<String, Integer>> apply(PCollection<GameActionInfo> gameInfo) {
+    public PCollection<KV<String, Integer>> expand(PCollection<GameActionInfo> gameInfo) {
       return gameInfo
           .apply(MapElements.via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore()))
               .withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))
