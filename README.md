@@ -13,7 +13,7 @@ This example can be used with conference talks and self-study. The base of the e
 1. Run `cd beamexample/BeamTutorial`
 1. Run `mvn compile`
 1. Create local output directory: `mkdir output`
-1. Run `mvn exec:java -Dexec.mainClass="org.apache.beam.examples.tutorial.game.solution.Exercise1"`
+1. Run `mvn compile exec:java -Dexec.mainClass="org.apache.beam.examples.tutorial.game.solution.Exercise1" -Pdirect-runner`
 1. Run `cat output/user_score` to verify the program ran correctly and the output file was created.
 
 ### Using a Java IDE
@@ -26,12 +26,12 @@ This example can be used with conference talks and self-study. The base of the e
 
 1. Follow the first steps from [Flink's Quickstart](https://ci.apache.org/projects/flink/flink-docs-release-1.1/quickstart/setup_quickstart.html) to [download Flink](https://ci.apache.org/projects/flink/flink-docs-release-1.1/quickstart/setup_quickstart.html#download).
 1. Create the `output` directory.
-1. To run on a JVM-local cluster: `mvn exec:java -Dexec.mainClass=org.apache.beam.examples.tutorial.game.solution.Exercise1 -Dexec.args='--runner=FlinkRunner --flinkMaster=[local]'`
+1. To run on a JVM-local cluster: `mvn compile exec:java -Dexec.mainClass=org.apache.beam.examples.tutorial.game.solution.Exercise1 -Dexec.args='--runner=FlinkRunner --flinkMaster=[local]'  -Pflink-runner`
 1. To run on an out-of-process local cluster (note that the steps below should also work on a real cluster if you have one running):
    1. [Start a local Flink cluster](https://ci.apache.org/projects/flink/flink-docs-release-1.1/quickstart/setup_quickstart.html#start-a-local-flink-cluster).
    1. Navigate to the WebUI (typically [http://localhost:8081](http://localhost:8081)), click [JobManager](http://localhost:8081/#/jobmanager/config), and note the value of `jobmanager.rpc.port`. The default is probably 6123.
-   1. Run `mvn package` to generate a JAR file. Note the location of the generated JAR (probably `target/Tutorial-0.0.1-SNAPSHOT.jar`)
-   1. Run `mvn -X -e exec:java -Dexec.mainClass=org.apache.beam.examples.tutorial.game.solution.Exercise1 -Dexec.args='--runner=FlinkRunner --flinkMaster=localhost:6123 --filesToStage=target/Tutorial-0.0.1-SNAPSHOT.jar'`, replacing the defaults for port and JAR file if they differ.
+   1. Run `mvn package -Pflink-runner` to generate a JAR file. Note the location of the generated JAR (probably `./target/BeamTutorial-bundled-flink.jar`)
+   1. Run `mvn -X -e compile exec:java -Dexec.mainClass=org.apache.beam.examples.tutorial.game.solution.Exercise1 -Dexec.args='--runner=FlinkRunner --flinkMaster=localhost:6123 --filesToStage=./target/BeamTutorial-bundled-flink.jar' -Pflink-runner`, replacing the defaults for port and JAR file if they differ.
    1. Check in the [WebUI](http://localhost:8081) to see the job listed.
 1. Run `cat output/user_score` to verify the pipeline ran correctly and the output file was created.
 
@@ -40,14 +40,14 @@ This example can be used with conference talks and self-study. The base of the e
 1. Create the `output` directory.
 1. Allow all users (Spark may run as a different user) to write to the `output` directory. `chmod 1777 output`.
 1. Change the output file to a fully-qualified path. For example, `this("output/user_score");` to `this("/home/vmuser/output/user_score");`
-1. Run `mvn package`
-1. Run `spark-submit --jars ~/.m2/repository/org/apache/beam/beam-runners-spark/0.3.0-incubating-SNAPSHOT/beam-runners-spark-0.3.0-incubating-SNAPSHOT.jar --class org.apache.beam.examples.tutorial.game.solution.Exercise2 --master yarn-client target/Tutorial-0.0.1-SNAPSHOT.jar --runner=SparkRunner`
+1. Run `mvn package -Pspark-runner`
+1. Run `spark-submit --jars ./target/BeamTutorial-bundled-spark.jar --class org.apache.beam.examples.tutorial.game.solution.Exercise2 --master yarn-client ./target/BeamTutorial-bundled-spark.jar --runner=SparkRunner`
 
 ### Google Cloud Dataflow
 
 1. Follow the steps in either of the [Java quickstarts for Cloud Dataflow](https://cloud.google.com/dataflow/docs/quickstarts) to initialize your Google Cloud setup.
 1. [Create a bucket](https://cloud.google.com/storage/docs/creating-buckets) on Google Cloud Storage for staging and output.
-1. Run `mvn -X exec:java -Dexec.mainClass="org.apache.beam.examples.tutorial.game.solution.Exercise1" -Dexec.args='--runner=DataflowRunner --project=<YOUR-GOOGLE-CLOUD-PROJECT> --gcpTempLocation=gs://<YOUR-BUCKET-NAME> --outputPrefix=gs://<YOUR-BUCKET-NAME>/output/'`, after replacing `<YOUR-GCP-PROJECT>` and `<YOUR-BUCKET-NAME>` with the appropriate values.
+1. Run `mvn -X compile exec:java -Dexec.mainClass="org.apache.beam.examples.tutorial.game.solution.Exercise1" -Dexec.args='--runner=DataflowRunner --project=<YOUR-GOOGLE-CLOUD-PROJECT> --gcpTempLocation=gs://<YOUR-BUCKET-NAME> --outputPrefix=gs://<YOUR-BUCKET-NAME>/output/'  -Pdataflow-runner`, after replacing `<YOUR-GCP-PROJECT>` and `<YOUR-BUCKET-NAME>` with the appropriate values.
 1. Check the [Cloud Dataflow Console](https://console.cloud.google.com/dataflow) to see the job running.
 1. Check the output bucket to see the generated output: `https://console.cloud.google.com/storage/browser/<YOUR-BUCKET-NAME>/`
 

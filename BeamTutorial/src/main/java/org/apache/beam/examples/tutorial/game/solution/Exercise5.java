@@ -24,7 +24,6 @@ import org.apache.beam.examples.tutorial.game.GameActionInfo.KeyField;
 import org.apache.beam.examples.tutorial.game.utils.ExerciseOptions;
 import org.apache.beam.examples.tutorial.game.utils.Input;
 import org.apache.beam.examples.tutorial.game.utils.Output;
-import org.apache.beam.runners.direct.DirectRunner;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.Aggregator;
@@ -208,8 +207,6 @@ public class Exercise5 {
 
   public static void main(String[] args) throws Exception {
     ExerciseOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(ExerciseOptions.class);
-    // Allow the pipeline to be cancelled automatically.
-    options.setRunner(DirectRunner.class);
     Pipeline pipeline = Pipeline.create(options);
 
     // Read Events from the custom unbounded source
