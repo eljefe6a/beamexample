@@ -43,6 +43,7 @@ This example can be used with conference talks and self-study. The base of the e
 1. Run `mvn package -Pspark-runner`
 1. Run `spark-submit --jars ./target/BeamTutorial-bundled-spark.jar --class org.apache.beam.examples.tutorial.game.solution.Exercise2 --master yarn-client ./target/BeamTutorial-bundled-spark.jar --runner=SparkRunner`
 
+
 ### Google Cloud Dataflow
 
 1. Follow the steps in either of the [Java quickstarts for Cloud Dataflow](https://cloud.google.com/dataflow/docs/quickstarts) to initialize your Google Cloud setup.
