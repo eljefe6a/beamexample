@@ -1,22 +1,18 @@
 package org.apache.beam.examples.tutorial.game;
 
-import org.apache.avro.reflect.Nullable;
-import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.coders.DefaultCoder;
 import org.joda.time.Instant;
+import java.io.Serializable;
 
 /**
  * Class to hold info about a game event.
  */
-@DefaultCoder(AvroCoder.class)
-public class GameActionInfo {
-  @Nullable
+@DefaultCoder(SerializableCoder.class)
+public class GameActionInfo implements Serializable {
   private String user;
-  @Nullable
   private String team;
-  @Nullable
   private Integer score;
-  @Nullable
   private Instant timestamp;
 
   public GameActionInfo() {

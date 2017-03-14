@@ -17,7 +17,7 @@ package org.apache.beam.examples.tutorial.game.injector;
 
 import org.apache.beam.examples.tutorial.game.GameActionInfo;
 import org.apache.beam.examples.tutorial.game.injector.InjectorIterator.SourceConfig;
-import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.io.UnboundedSource;
@@ -100,7 +100,7 @@ public class InjectorUnboundedSource extends UnboundedSource<GameActionInfo, Inj
 
   @Override
   public Coder<GameActionInfo> getDefaultOutputCoder() {
-    return AvroCoder.of(GameActionInfo.class);
+    return SerializableCoder.of(GameActionInfo.class);
   }
 
   private static class InjectorUnboundedReader extends UnboundedReader<GameActionInfo> {
