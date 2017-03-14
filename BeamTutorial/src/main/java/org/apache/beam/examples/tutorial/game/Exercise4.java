@@ -84,7 +84,7 @@ public class Exercise4 {
     public PCollection<KV<String, Integer>> expand(PCollection<GameActionInfo> input) {
       // [START EXERCISE 4 Part 1 - User Leaderboard]
       // JavaDoc: https://cloud.google.com/dataflow/java-sdk/JavaDoc
-      // Developer Docs: https://cloud.google.com/dataflow/model/triggering
+      // Developer Docs: https://cloud.google.com/dataflow/model/triggers
       //
       // Compute the user scores since the beginning of time. To do this we will
       // need:
