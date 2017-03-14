@@ -28,7 +28,7 @@ This example can be used with conference talks and self-study. The base of the e
 1. Create the `output` directory.
 1. To run on a JVM-local cluster: `mvn compile exec:java -Dexec.mainClass=org.apache.beam.examples.tutorial.game.solution.Exercise1 -Dexec.args='--runner=FlinkRunner --flinkMaster=[local]'  -Pflink-runner`
 1. To run on an out-of-process local cluster (note that the steps below should also work on a real cluster if you have one running):
-   1. [Start a local Flink cluster](https://ci.apache.org/projects/flink/flink-docs-release-1.1/quickstart/setup_quickstart.html#start-a-local-flink-cluster).
+   1. [Start a local Flink cluster](https://ci.apache.org/projects/flink/flink-docs-release-1.2/quickstart/setup_quickstart.html#start-a-local-flink-cluster).
    1. Navigate to the WebUI (typically [http://localhost:8081](http://localhost:8081)), click [JobManager](http://localhost:8081/#/jobmanager/config), and note the value of `jobmanager.rpc.port`. The default is probably 6123.
    1. Run `mvn package -Pflink-runner` to generate a JAR file. Note the location of the generated JAR (probably `./target/BeamTutorial-bundled-flink.jar`)
    1. Run `mvn -X -e compile exec:java -Dexec.mainClass=org.apache.beam.examples.tutorial.game.solution.Exercise1 -Dexec.args='--runner=FlinkRunner --flinkMaster=localhost:6123 --filesToStage=./target/BeamTutorial-bundled-flink.jar' -Pflink-runner`, replacing the defaults for port and JAR file if they differ.
