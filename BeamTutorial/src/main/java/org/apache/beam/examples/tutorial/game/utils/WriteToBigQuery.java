@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.extensions.gcp.options.GcpOptions;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO.Write.CreateDisposition;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO.Write.WriteDisposition;
-import org.apache.beam.sdk.options.GcpOptions;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -33,6 +33,7 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
+import org.apache.beam.sdk.values.POutput;
 
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableReference;
@@ -47,13 +48,18 @@ import com.google.api.services.bigquery.model.TableSchema;
 public class WriteToBigQuery<T> extends PTransform<PCollection<T>, PDone> {
 
   protected String tableName;
+  protected String datasetId;
+  protected String projectId;
+  
   protected Map<String, FieldInfo<T>> fieldInfo;
 
   public WriteToBigQuery() {
   }
 
-  public WriteToBigQuery(String tableName, Map<String, FieldInfo<T>> fieldInfo) {
+  public WriteToBigQuery(String tableName, String datasetId, String projectId, Map<String, FieldInfo<T>> fieldInfo) {
     this.tableName = tableName;
+    this.datasetId = datasetId;
+    this.projectId = projectId;
     this.fieldInfo = fieldInfo;
   }
 
@@ -114,18 +120,22 @@ public class WriteToBigQuery<T> extends PTransform<PCollection<T>, PDone> {
 
   @Override
   public PDone expand(PCollection<T> teamAndScore) {
-    return teamAndScore.apply("ConvertToRow", ParDo.of(new BuildRowFn()))
-        .apply(BigQueryIO.Write.to(getTable(teamAndScore.getPipeline(), tableName)).withSchema(getSchema())
-            .withCreateDisposition(CreateDisposition.CREATE_IF_NEEDED)
-            .withWriteDisposition(WriteDisposition.WRITE_APPEND));
+    teamAndScore.apply("ConvertToRow", ParDo.of(new BuildRowFn()))
+            .apply(
+                    BigQueryIO.writeTableRows()
+                        .to(getTable(tableName, datasetId, projectId))
+                        .withSchema(getSchema())
+                        .withCreateDisposition(CreateDisposition.CREATE_IF_NEEDED)
+                        .withWriteDisposition(WriteDisposition.WRITE_APPEND));
+    
+    return PDone.in(teamAndScore.getPipeline());
   }
 
   /** Utility to construct an output table reference. */
-  static TableReference getTable(Pipeline pipeline, String tableName) {
-    PipelineOptions options = pipeline.getOptions();
+  static TableReference getTable(String tableName, String datasetId, String projectId) {
     TableReference table = new TableReference();
-    table.setDatasetId(options.as(ExerciseOptions.class).getDataset());
-    table.setProjectId(options.as(GcpOptions.class).getProject());
+    table.setDatasetId(datasetId);
+    table.setProjectId(projectId);
     table.setTableId(tableName);
     return table;
   }

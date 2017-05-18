@@ -65,8 +65,8 @@ public class Exercise2 {
     @Override
     public PCollection<KV<String, Integer>> expand(PCollection<GameActionInfo> gameInfo) {
       return gameInfo
-          .apply(MapElements.via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore()))
-              .withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))
+          .apply(MapElements.into(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers()))
+                  .via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore())))
           .apply(Sum.<String>integersPerKey());
     }
   }
@@ -85,7 +85,7 @@ public class Exercise2 {
         // Extract and sum username/score pairs from the event data.
         .apply("ExtractUserScore", new ExtractAndSumScore(KeyField.USER))
         // Write the user and score to the "user_score" BigQuery table.
-        .apply(new Output.WriteUserScoreSums());
+        .apply(new Output.WriteUserScoreSums(options.getOutputPrefix()));
 
     // Run the batch pipeline.
     pipeline.run();

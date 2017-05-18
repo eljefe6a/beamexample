@@ -106,9 +106,10 @@ public class Exercise1 {
           // We declare the output type explicitly using withOutputType.
           // Use the following code to add the output type:
           //
-          .apply(MapElements.via((GameActionInfo info) -> {
-            return KV.of(field.extract(info), info.getScore());
-          }).withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))
+          .apply(MapElements.into(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers()))
+                  .via((GameActionInfo info) -> {
+              return KV.of(field.extract(info), info.getScore());
+          }))
           // Sum is a family of PTransforms for computing the sum of elements in
           // a PCollection.
           // Select the appropriate method to compute the sum over each key.
@@ -131,7 +132,7 @@ public class Exercise1 {
         // Extract and sum username/score pairs from the event data.
         .apply("ExtractUserScore", new ExtractAndSumScore(KeyField.USER))
         // Write the user and score to the "user_score" BigQuery table.
-        .apply(new Output.WriteUserScoreSums());
+        .apply(new Output.WriteUserScoreSums(options.getOutputPrefix()));
 
     // Run the batch pipeline.
     pipeline.run();

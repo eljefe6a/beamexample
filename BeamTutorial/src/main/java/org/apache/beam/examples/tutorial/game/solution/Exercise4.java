@@ -188,8 +188,8 @@ public class Exercise4 {
     @Override
     public PCollection<KV<String, Integer>> expand(PCollection<GameActionInfo> gameInfo) {
       return gameInfo
-          .apply(MapElements.via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore()))
-              .withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))
+          .apply(MapElements.into(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers()))
+                  .via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore())))
           .apply(Sum.<String>integersPerKey());
     }
   }
@@ -211,13 +211,13 @@ public class Exercise4 {
     // regular updates.
     gameEvents.apply(new UserLeaderBoard(ALLOWED_LATENESS, EARLY_UPDATE_FREQUENCY))
         // Write the results to BigQuery.
-        .apply(new Output.WriteTriggeredUserScoreSums());
+        .apply(new Output.WriteTriggeredUserScoreSums(options.getOutputPrefix()));
 
     // Extract team/score pairs from the event stream, using windows with early
     // and late updates.
     gameEvents.apply(new TeamLeaderBoard(ALLOWED_LATENESS, EARLY_UPDATE_FREQUENCY, LATE_UPDATE_FREQUENCY, WINDOW_SIZE))
         // Write the results to BigQuery.
-        .apply(new Output.WriteTriggeredTeamScore());
+        .apply(new Output.WriteTriggeredTeamScore(options.getOutputPrefix()));
 
     // Run the pipeline
     pipeline.run();

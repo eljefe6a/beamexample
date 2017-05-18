@@ -8,8 +8,7 @@
   <version>0.0.1-SNAPSHOT</version>
 
   <properties>
-    <!--  Use the 0.6.0 release candidate from the Apache staging repository. -->
-    <beam.version>0.6.0</beam.version>
+    <beam.version>2.0.0</beam.version>
     <slf4j.version>1.7.5</slf4j.version>
     <junit.version>4.8.2</junit.version>
     <hamcrest.version>1.3</hamcrest.version>

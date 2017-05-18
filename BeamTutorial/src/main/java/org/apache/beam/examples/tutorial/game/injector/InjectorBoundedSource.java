@@ -51,7 +51,7 @@ public class InjectorBoundedSource extends BoundedSource<GameActionInfo> {
   }
 
   @Override
-  public List<? extends BoundedSource<GameActionInfo>> splitIntoBundles(long desiredBundleSizeBytes,
+  public List<? extends BoundedSource<GameActionInfo>> split(long desiredBundleSizeBytes,
       PipelineOptions options) throws Exception {
 
     // Each source will generate all the data for a specific team. We have 15

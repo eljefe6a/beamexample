@@ -73,7 +73,7 @@ public class InjectorUnboundedSource extends UnboundedSource<GameActionInfo, Inj
   }
 
   @Override
-  public List<InjectorUnboundedSource> generateInitialSplits(int desiredNumSplits, PipelineOptions options)
+  public List<InjectorUnboundedSource> split(int desiredNumSplits, PipelineOptions options)
       throws Exception {
     int numSplits = Math.min(desiredNumSplits, config.numTeams);
     ArrayList<InjectorUnboundedSource> splits = new ArrayList<>(numSplits);

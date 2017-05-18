@@ -97,7 +97,7 @@ public class Exercise3 {
         // Extract and sum the windowed teamname/scores
         .apply(new WindowedTeamScore(Duration.standardMinutes(1)))
         // Write the hourly team scores to the "hourly_team_score" table
-        .apply(new Output.WriteHourlyTeamScore());
+        .apply(new Output.WriteHourlyTeamScore(options.getOutputPrefix()));
 
     pipeline.run();
   }
@@ -118,9 +118,9 @@ public class Exercise3 {
 
     @Override
     public PCollection<KV<String, Integer>> expand(PCollection<GameActionInfo> gameInfo) {
-      return gameInfo
-          .apply(MapElements.via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore()))
-              .withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))
+        return gameInfo
+          .apply(MapElements.into(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers()))
+              .via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore())))
           .apply(Sum.<String>integersPerKey());
     }
   }

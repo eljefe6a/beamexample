@@ -25,8 +25,9 @@ import org.apache.beam.examples.tutorial.game.utils.ExerciseOptions;
 import org.apache.beam.examples.tutorial.game.utils.Input;
 import org.apache.beam.examples.tutorial.game.utils.Output;
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.metrics.Counter;
+import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
-import org.apache.beam.sdk.transforms.Aggregator;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.Mean;
@@ -86,9 +87,8 @@ public class Exercise5 {
       return sumScores.apply("ProcessAndFilter",
           ParDo
               // use the derived mean total score as a side input
-              .withSideInputs(globalMeanScore).of(new DoFn<KV<String, Integer>, KV<String, Integer>>() {
-                private final Aggregator<Long, Long> numSpammerUsers = createAggregator("SpammerUsers",
-                		Sum.ofLongs());
+              .of(new DoFn<KV<String, Integer>, KV<String, Integer>>() {
+                private final Counter numSpammerUsers = Metrics.counter(CalculateSpammyUsers.class, "SpammerUsers");
 
                 @ProcessElement
                 public void processElement(ProcessContext c) {
@@ -108,7 +108,7 @@ public class Exercise5 {
                     //
                     // Increment the numSpammerUsers aggregator to record the
                     // number of spammers identified.
-                    numSpammerUsers.addValue(1L);
+                    numSpammerUsers.inc(1L);
 
                     //
                     // Output only the spammy user entries.
@@ -116,7 +116,7 @@ public class Exercise5 {
                   }
                   // [END EXERCISE 5 - Part 1]
                 }
-              }));
+              }).withSideInputs(globalMeanScore));
     }
   }
 
@@ -150,7 +150,7 @@ public class Exercise5 {
           ParDo
               // Configure the ParDo to read the side input. Hint: use
               // ParDo.withSideInputs()
-              .withSideInputs(spammersView).of(new DoFn<GameActionInfo, GameActionInfo>() {
+              .of(new DoFn<GameActionInfo, GameActionInfo>() {
                 @ProcessElement
                 public void processElement(ProcessContext c) {
                   Map<String, Integer> spammers = c.sideInput(spammersView);
@@ -160,7 +160,7 @@ public class Exercise5 {
                     c.output(c.element());
                   }
                 }
-              }))
+              }).withSideInputs(spammersView))
           // Use the ExtractAndSumScore to compute the team scores.
           .apply("ExtractTeamScore", new ExtractAndSumScore(KeyField.TEAM));
       // [END EXERCISE 5 - Part 2]
@@ -169,8 +169,8 @@ public class Exercise5 {
     private PCollectionView<Map<String, Integer>> createSpammersView(PCollection<GameActionInfo> input) {
       return input
           .apply("ExtractUserScore",
-              MapElements.via((GameActionInfo gInfo) -> KV.of(gInfo.getUser(), gInfo.getScore()))
-                  .withOutputType(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers())))
+              MapElements.into(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers()))
+                  .via((GameActionInfo gInfo) -> KV.of(gInfo.getUser(), gInfo.getScore())))
           .apply("UserWindows", Window.<KV<String, Integer>>into(FixedWindows.of(windowSize)))
           // Filter out everyone but those with (SCORE_WEIGHT * avg) clickrate.
           // These might be robots/spammers.
@@ -197,9 +197,9 @@ public class Exercise5 {
 
     @Override
     public PCollection<KV<String, Integer>> expand(PCollection<GameActionInfo> gameInfo) {
-      return gameInfo.apply(MapElements.via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore()))
-          .withOutputType(new TypeDescriptor<KV<String, Integer>>() {
-          })).apply(Sum.<String>integersPerKey());
+      return gameInfo.apply(MapElements.into(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers()))
+            .via((GameActionInfo gInfo) -> KV.of(field.extract(gInfo), gInfo.getScore())))
+          .apply(Sum.<String>integersPerKey());
     }
   }
 
@@ -211,14 +211,14 @@ public class Exercise5 {
 
     // Read Events from the custom unbounded source
     PCollection<GameActionInfo> rawEvents = pipeline.apply(new Input.UnboundedGenerator());
-
+        
     // Calculate the total score per team over fixed windows,
     // and emit cumulative updates for late data. Uses the side input derived
     // above-- the set of
     // suspected robots-- to filter out scores from those users from the sum.
     rawEvents.apply(new WindowedNonSpammerTeamScore(WINDOW_SIZE))
         // Write the result to BigQuery
-        .apply(new Output.WriteTriggeredTeamScore());
+        .apply(new Output.WriteTriggeredTeamScore(options.getOutputPrefix()));
 
     pipeline.run();
   }

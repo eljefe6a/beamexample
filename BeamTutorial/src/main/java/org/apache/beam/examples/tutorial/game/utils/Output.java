@@ -44,22 +44,24 @@ public class Output {
 
   private static class Base<InputT> extends PTransform<PCollection<InputT>, PDone> {
 
+    private final String outputPrefix;
     private final String fileName;
+    
     protected MapContextElements<InputT, String> objToString;
 
-    public Base(String fileName) {
+    public Base(String outputPrefix, String fileName) {
+      this.outputPrefix = outputPrefix;
       this.fileName = fileName;
     }
 
     @Override
     public PDone expand(PCollection<InputT> input) {
-      String outputFilename =
-          input.getPipeline().getOptions().as(ExerciseOptions.class).getOutputPrefix() + fileName;
+      String outputFilename = outputPrefix + fileName;
 
       PCollection<String> formatted = input.apply(objToString);
 
       if (input.isBounded().equals(IsBounded.BOUNDED)) {
-        formatted.apply(TextIO.Write.to(outputFilename));
+        formatted.apply(TextIO.write().to(outputFilename));
       } else {
         formatted.apply(ParDo.of(new UnboundedWriteIO(outputFilename)));
       }
@@ -74,12 +76,12 @@ public class Output {
    * value
    */
   public static class WriteUserScoreSums extends Base<KV<String, Integer>> {
-    public WriteUserScoreSums() {
-      this("user_score");
+    public WriteUserScoreSums(String outputPrefix) {
+      this(outputPrefix, "user_score");
     }
 
-    protected WriteUserScoreSums(String fileName) {
-      super(fileName);
+    public WriteUserScoreSums(String outputPrefix, String fileName) {
+      super(outputPrefix, fileName);
 
       objToString = MapContextElements
           .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
@@ -98,12 +100,12 @@ public class Output {
    * value - {@code window_start} from the start time of the window
    */
   public static class WriteHourlyTeamScore extends Base<KV<String, Integer>> {
-    public WriteHourlyTeamScore() {
-      this("hourly_team_score");
+    public WriteHourlyTeamScore(String outputPrefix) {
+      this(outputPrefix, "hourly_team_score");
     }
 
-    protected WriteHourlyTeamScore(String tableName) {
-      super(tableName);
+    protected WriteHourlyTeamScore(String outputPrefix, String tableName) {
+      super(outputPrefix, tableName);
 
       objToString = MapContextElements
           .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
@@ -125,8 +127,8 @@ public class Output {
    * value - {@code processing_time} the time at which the row was written
    */
   public static class WriteTriggeredUserScoreSums extends Base<KV<String, Integer>> {
-    public WriteTriggeredUserScoreSums() {
-      super("triggered_user_score");
+    public WriteTriggeredUserScoreSums(String outputPrefix) {
+      super(outputPrefix, "triggered_user_score");
 
       objToString = MapContextElements
           .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {
@@ -151,8 +153,8 @@ public class Output {
    * late
    */
   public static class WriteTriggeredTeamScore extends Base<KV<String, Integer>> {
-    public WriteTriggeredTeamScore() {
-      super("triggered_team_score");
+    public WriteTriggeredTeamScore(String outputPrefix) {
+      super(outputPrefix, "triggered_team_score");
 
       objToString = MapContextElements
           .<KV<String, Integer>, String>via((KV<DoFn<KV<String, Integer>, String>.ProcessContext, BoundedWindow> c) -> {

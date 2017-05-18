@@ -121,7 +121,7 @@ public class Exercise1 {
         // Extract and sum username/score pairs from the event data.
         .apply("ExtractUserScore", new ExtractAndSumScore(KeyField.USER))
         // Write the user and score to the "user_score" BigQuery table.
-        .apply(new Output.WriteUserScoreSums());
+        .apply(new Output.WriteUserScoreSums(options.getOutputPrefix()));
 
     // Run the batch pipeline.
     pipeline.run();

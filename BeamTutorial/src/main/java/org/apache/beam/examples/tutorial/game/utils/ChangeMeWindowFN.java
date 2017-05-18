@@ -5,16 +5,12 @@ import java.util.Collection;
 import org.apache.beam.sdk.coders.Coder;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.transforms.windowing.WindowFn;
+import org.apache.beam.sdk.transforms.windowing.WindowMappingFn;
 
 public class ChangeMeWindowFN<T, W extends BoundedWindow> extends WindowFn<T, W> {
 
   @Override
   public Collection<W> assignWindows(WindowFn<T, W>.AssignContext arg0) throws Exception {
-    throw new RuntimeException("Not implemented");
-  }
-
-  @Override
-  public W getSideInputWindow(BoundedWindow arg0) {
     throw new RuntimeException("Not implemented");
   }
 
@@ -33,4 +29,8 @@ public class ChangeMeWindowFN<T, W extends BoundedWindow> extends WindowFn<T, W>
     throw new RuntimeException("Not implemented");
   }
 
+  @Override
+  public WindowMappingFn<W> getDefaultWindowMappingFn() {
+    throw new RuntimeException("Not implemented");
+  }
 }

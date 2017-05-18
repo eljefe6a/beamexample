@@ -1,17 +1,15 @@
 package org.apache.beam.examples.tutorial.game.utils;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.beam.sdk.io.FileSystems;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
-import org.apache.beam.sdk.util.IOChannelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +37,8 @@ public class UnboundedWriteIO extends DoFn<String, Void> {
     // Check if stream for this prefix has been created yet. Initialize if not.
     OutputStream stream = streams.get(prefix);
     if (stream == null) {
-      stream = Channels.newOutputStream(IOChannelUtils.create(prefix, "text/plain"));
+      stream = Channels.newOutputStream(FileSystems.create(
+              FileSystems.matchNewResource(prefix, false), "text/plain"));
       streams.put(prefix, stream);
     }
 
@@ -70,7 +69,7 @@ public class UnboundedWriteIO extends DoFn<String, Void> {
   }
 
   @StartBundle
-  public void startBundle(Context c) {
+  public void startBundle() {
     outputs = Lists.newArrayList();
   }
 
@@ -80,7 +79,7 @@ public class UnboundedWriteIO extends DoFn<String, Void> {
   }
 
   @FinishBundle
-  public void finishBundle(Context c) throws IOException {
+  public void finishBundle() throws IOException {
     writeToStream(prefix, outputs);
 
     // Clear outputs as they've been written
