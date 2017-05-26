@@ -107,9 +107,7 @@ public class Exercise1 {
           // Use the following code to add the output type:
           //
           .apply(MapElements.into(TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.integers()))
-                  .via((GameActionInfo info) -> {
-              return KV.of(field.extract(info), info.getScore());
-          }))
+                  .via((GameActionInfo info) -> KV.of(field.extract(info), info.getScore())))
           // Sum is a family of PTransforms for computing the sum of elements in
           // a PCollection.
           // Select the appropriate method to compute the sum over each key.
