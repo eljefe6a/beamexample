@@ -44,6 +44,19 @@ This example can be used with conference talks and self-study. The base of the e
 1. Run `spark-submit --jars ./target/BeamTutorial-bundled-spark.jar --class org.apache.beam.examples.tutorial.game.solution.Exercise2 --master yarn-client ./target/BeamTutorial-bundled-spark.jar --runner=SparkRunner`
 
 
+### Apache Apex
+The instructions below are general guidelines to use Apex runner as of now. The examples in the this respository won't work as is.
+
+1. Download pre-configured [Sandbox from here](http://www.datatorrent.com/downloads/3.6.0/datatorrent-sandbox-3.6.0-beam.ova). The sandbox has all pre-requisites installed and setup.
+1. Download some data for processing. Run `curl http://www.gutenberg.org/cache/epub/1128/pg1128.txt > /tmp/kinglear.txt`
+1. Move data to input directory. Run `hdfs dfs -put /tmp/kinglear.txt /tmp/input/`
+1. Confirm for  data in the input directory. Run `hdfs dfs -ls /tmp/input/`
+1. Make sure the default output directory does not exist. Run `dfs -rm -r -f /tmp/output/`
+1. Run `apex`, at the prompt run `launch ~/code/apex-samples/beam-apex-wordcount/target/beam-apex-wordcount-1.0-SNAPSHOT.apa`. To exit from apex prompt, use “exit” or Control-D.
+1. You can track progress of the application via [YARN UI - http://localhost:8088](http://localhost:8088) or [Console - http://localhost:9090](http://localhost:9090) on the sandbox.
+1. Once the application is finished successfully, check output `hdfs dfs -ls /tmp/output/`.  You should see couple of files in the output `/tmp/output/_SUCCESS` and `/tmp/output/part-r-00000`. The presence of first signifies success of the program. The output of wordcount program is in `part-r-00000` file. You can check output of the program as `hdfs dfs -cat /tmp/output/part-r-00000` .
+
+
 ### Google Cloud Dataflow
 
 1. Follow the steps in either of the [Java quickstarts for Cloud Dataflow](https://cloud.google.com/dataflow/docs/quickstarts) to initialize your Google Cloud setup.
